@@ -1,0 +1,366 @@
+[
+    {
+        "name": "Model 1911",
+        "id": "m9k_colt1911",
+        "ammo": 80,
+        "dmgmul": 1,
+        "slot": 2
+    },
+    {
+        "name": "Stricazzi",
+        "id": "m9k_striker12",
+        "ammo": 40,
+        "dmgmul": 1,
+        "slot": 1
+    },
+    {
+        "name": "Taglia Pizza Bilanciata",
+        "id": "weapon_ss2_circularsaw",
+        "ammo": 0,
+        "dmgmul": 0.30,
+        "slot": 1
+    },
+    {
+        "name": "BruHwing",
+        "id": "m9k_browningauto5",
+        "ammo": 50,
+        "dmgmul": 0.6,
+        "slot": 1
+    },
+    {
+        "name": "Lasur",
+        "id": "weapon_ss2_beamgun",
+        "ammo": 250,
+        "dmgmul": 0.2,
+        "slot": 1
+    },
+    {
+        "name": "Nitro",
+        "id": "m9k_nitro",
+        "ammo": 0,
+        "dmgmul": 1,
+        "slot": 3
+    },
+    {
+        "name": "Gas Nel Vino",
+        "id": "m9k_nerve_gas",
+        "ammo": 3,
+        "dmgmul": 1,
+        "slot": 666
+    },
+    {
+        "name": "MiniMiniMinigun",
+        "id": "sanctum2_smg",
+        "ammo": 160,
+        "dmgmul": 1.1,
+        "slot": 1
+    },
+    {
+        "name": "SuperCharger",
+        "id": "sanctum2_sg",
+        "ammo": 30,
+        "dmgmul": 0.7,
+        "slot": 1
+    },
+    {
+        "name": "Nikola Tesla",
+        "id": "sanctum2_tr",
+        "ammo": 0,
+        "dmgmul": 0.4,
+        "slot": 1
+    },
+    {
+        "name": "SanctumSantis Ar",
+        "id": "sanctum2_ar",
+        "ammo": 180,
+        "dmgmul": 1,
+        "slot": 1
+    },
+    {
+        "name": "Super Shotgun",
+        "id": "weapon_ss2_doubleshotgun",
+        "ammo": 30,
+        "dmgmul": 0.8,
+        "slot": 1
+    },
+    {
+        "name": "Granato",
+        "id": "m9k_m61_frag",
+        "ammo": 1,
+        "dmgmul": 1,
+        "slot": 3
+    },
+    {
+        "name": "Arpione",
+        "id": "m9k_harpoon",
+        "ammo": 1,
+        "dmgmul": 1,
+        "slot": 3
+    },
+    {
+        "name": "Mina",
+        "id": "m9k_proxy_mine",
+        "ammo": 1,
+        "dmgmul": 1,
+        "slot": 3
+    },
+    {
+        "name": "Citroen C4",
+        "id": "m9k_suicide_bomb",
+        "ammo": 1,
+        "dmgmul": 1,
+        "slot": 3
+    },
+    {
+        "name": "Stickygghiaun",
+        "id": "m9k_sticky_grenade",
+        "ammo": 1,
+        "dmgmul": 1,
+        "slot": 3
+    },
+    {
+        "name": "Pacco Bartolini",
+        "id": "m9k_ied_detonator",
+        "ammo": 1,
+        "dmgmul": 0.6,
+        "slot": 3
+    },
+    {
+        "name": "Contender",
+        "id": "m9k_contender",
+        "ammo": 20,
+        "dmgmul": 1,
+        "slot": 1
+    },
+    {
+        "name": "I Montaggi",
+        "id": "m9k_intervention",
+        "ammo": 20,
+        "dmgmul": 1,
+        "slot": 1
+    },
+    {
+        "name": "BENEEHHlli",
+        "id": "m9k_m3",
+        "ammo": 40,
+        "dmgmul": 1,
+        "slot": 1
+    },
+    {
+        "name": "Itaca",
+        "id": "m9k_ithacam37",
+        "ammo": 35,
+        "dmgmul": 1,
+        "slot": 1
+    },
+    {
+        "name": "SPAS Gamba",
+        "id": "m9k_spas12",
+        "ammo": 60,
+        "dmgmul": 0.5,
+        "slot": 1
+    },
+    {
+        "name": "USAS e Getta",
+        "id": "m9k_usas",
+        "ammo": 60,
+        "dmgmul": 0.45,
+        "slot": 1
+    },
+    {
+        "name": "MOSS & Berg",
+        "id": "m9k_mossberg590",
+        "ammo": 50,
+        "dmgmul": 0.8,
+        "slot": 1
+    },
+    {
+        "name": "Luger Hitler",
+        "id": "m9k_luger",
+        "ammo": 80,
+        "dmgmul": 0.8,
+        "slot": 2
+    },
+    {
+        "name": "Severus Piton",
+        "id": "m9k_coltpython",
+        "ammo": 40,
+        "dmgmul": 1,
+        "slot": 2
+    },
+    {
+        "name": "Desert Igolnik",
+        "id": "m9k_deagle",
+        "ammo": 50,
+        "dmgmul": 0.9,
+        "slot": 2
+    },
+    {
+        "name": "Glock 18",
+        "id": "m9k_glock",
+        "ammo": 90,
+        "dmgmul": 0.85,
+        "slot": 2
+    },
+    {
+        "name": "USP",
+        "id": "m9k_hk45",
+        "ammo": 75,
+        "dmgmul": 0.85,
+        "slot": 2
+    },
+    {
+        "name": "Mr Satan",
+        "id": "m9k_m29satan",
+        "ammo": 45,
+        "dmgmul": 1,
+        "slot": 2
+    },
+    {
+        "name": "Beretta",
+        "id": "m9k_m92beretta",
+        "ammo": 85,
+        "dmgmul": 1,
+        "slot": 2
+    },
+    {
+        "name": "Rem 1858",
+        "id": "m9k_remington1858",
+        "ammo": 45,
+        "dmgmul": 1,
+        "slot": 2
+    },
+    {
+        "name": "Revolver e Mirino",
+        "id": "m9k_scoped_taurus",
+        "ammo": 45,
+        "dmgmul": 1,
+        "slot": 2
+    },
+    {
+        "name": "Sigsauer",
+        "id": "m9k_sig_p229r",
+        "ammo": 45,
+        "dmgmul": 1,
+        "slot": 2
+    },
+    {
+        "name": "Ares",
+        "id": "m9k_ares_shrike",
+        "ammo": 90,
+        "dmgmul": 0.8,
+        "slot": 1
+    },
+    {
+        "name": "Fg42",
+        "id": "m9k_fg42",
+        "ammo": 90,
+        "dmgmul": 0.65,
+        "slot": 1
+    },
+    {
+        "name": "Il Bar",
+        "id": "m9k_m1918bar",
+        "ammo": 80,
+        "dmgmul": 0.7,
+        "slot": 1
+    },
+    {
+        "name": "ASS Val",
+        "id": "m9k_val",
+        "ammo": 90,
+        "dmgmul": 0.8,
+        "slot": 1
+    },
+    {
+        "name": "Vikyr",
+        "id": "m9k_vikhr",
+        "ammo": 130,
+        "dmgmul": 0.6,
+        "slot": 1
+    },
+    {
+        "name": "Barile di Merda",
+        "id": "weapon_psw_grenade",
+        "ammo": 1,
+        "dmgmul": 1,
+        "slot": 3
+    },
+    {
+        "name": "BFG",
+        "id": "weapon_q2_bfg10k",
+        "ammo": 100,
+        "dmgmul": 1,
+        "slot": 3
+    },
+    {
+        "name": "ChainGun",
+        "id": "weapon_q2_chaingun",
+        "ammo": 250,
+        "dmgmul": 1,
+        "slot": 1
+    },
+    {
+        "name": "TimerGranade",
+        "id": "weapon_q2_handgrenade",
+        "ammo": 2,
+        "dmgmul": 1,
+        "slot": 3
+    },
+    {
+        "name": "Sparachiodi",
+        "id": "weapon_q2_hyperblaster",
+        "ammo": 200,
+        "dmgmul": 0.8,
+        "slot": 1
+    },
+    {
+        "name": "Akimbo Launcher",
+        "id": "weapon_q2_phalanx",
+        "ammo": 2,
+        "dmgmul": 0.5,
+        "slot": 3
+    },
+    {
+        "name": "Railgun",
+        "id": "weapon_q2_railgun",
+        "ammo": 10,
+        "dmgmul": 1,
+        "slot": 666
+    },
+    {
+        "name": "PusherShotgun",
+        "id": "weapon_q2_supershotgun",
+        "ammo": 30,
+        "dmgmul": 1,
+        "slot": 1
+    },
+    {
+        "name": "Uber Kleiner",
+        "id": "weapon_uberkleiner",
+        "ammo": 1,
+        "dmgmul": 1,
+        "slot": 666
+    },
+    {
+        "name": "I dont give a shit",
+        "id": "weapon_idontgiveashit",
+        "ammo": 0,
+        "dmgmul": 1,
+        "slot": 666
+    },
+    {
+        "name": "HAX",
+        "id": "weapon_haaaaax",
+        "ammo": 0,
+        "dmgmul": 1,
+        "slot": 666
+    },
+    {
+        "name": "Super Cannone",
+        "id": "weapon_ss2_cannon",
+        "ammo": 5,
+        "dmgmul": 1,
+        "slot": 666
+    }
+]

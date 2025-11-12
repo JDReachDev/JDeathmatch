@@ -69,6 +69,30 @@ if SERVER then
         if kills == moabKills and !JDM.MOAB.Players[steamID] then
             JDM.MOAB.Players[steamID] = true
             JDM.MOAB.AssignRandomWeapon(attacker)
+            -- Sync MOAB status to all clients
+            JDM.MOAB.SyncToClients()
         end
+    end)
+    
+    -- Sync MOAB status to all clients
+    function JDM.MOAB.SyncToClients()
+        net.Start("SendMoabStatus")
+        -- Send list of SteamIDs who have MOAB
+        local moabPlayers = {}
+        for steamID, _ in pairs(JDM.MOAB.Players) do
+            table.insert(moabPlayers, steamID)
+        end
+        net.WriteTable(moabPlayers)
+        net.Broadcast()
+    end
+    
+    -- Send MOAB status when player connects
+    hook.Add("PlayerInitialSpawn", "JDM_SendMoabStatus", function(ply)
+        if !IsValid(ply) then return end
+        timer.Simple(1, function()
+            if IsValid(ply) then
+                JDM.MOAB.SyncToClients()
+            end
+        end)
     end)
 end

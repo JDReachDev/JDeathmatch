@@ -5,6 +5,7 @@ AddCSLuaFile("sh_config.lua")
 AddCSLuaFile("cl_weapons.lua")
 AddCSLuaFile("cl_mapvote.lua")
 AddCSLuaFile("cl_sounds.lua")
+AddCSLuaFile("cl_scoreboard.lua")
 
 -- Include shared files
 include("shared.lua")

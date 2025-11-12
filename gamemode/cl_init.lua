@@ -5,5 +5,6 @@ include("shared.lua")
 include("cl_weapons.lua")
 include("cl_mapvote.lua")
 include("cl_sounds.lua")
+include("cl_scoreboard.lua")
 
 print("[INFO] JDeathmatch client loaded successfully")

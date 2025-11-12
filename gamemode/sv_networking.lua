@@ -8,6 +8,9 @@ if SERVER then
     -- Network string for MOAB sound
     util.AddNetworkString("SendMoabSound")
     
+    -- Network string for MOAB status sync
+    util.AddNetworkString("SendMoabStatus")
+    
     -- Network strings for map voting
     util.AddNetworkString("OpenMapVoteMenu")
     util.AddNetworkString("SendMapList")

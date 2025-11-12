@@ -98,16 +98,33 @@ if CLIENT then
         -- Clear existing entries
         playerList:Clear()
         
-        -- Get all players and sort by kills (descending)
-        local players = player.GetAll()
+        -- Get all players and filter out invalid ones
+        local allPlayers = player.GetAll()
+        local players = {}
+        for _, ply in ipairs(allPlayers) do
+            if IsValid(ply) and ply:IsPlayer() then
+                table.insert(players, ply)
+            end
+        end
+        
+        -- Sort players by kills (descending), then by deaths (ascending)
         table.sort(players, function(a, b)
-            if !IsValid(a) or !IsValid(b) then return false end
+            if !IsValid(a) or !IsValid(b) then 
+                return IsValid(a) -- Put valid players first
+            end
+            
             local killsA = a:Frags()
             local killsB = b:Frags()
-            if killsA == killsB then
-                return a:Deaths() < b:Deaths()
+            
+            -- Sort by kills descending
+            if killsA ~= killsB then
+                return killsA > killsB
             end
-            return killsA > killsB
+            
+            -- If kills are equal, sort by deaths ascending (fewer deaths = better)
+            local deathsA = a:Deaths()
+            local deathsB = b:Deaths()
+            return deathsA < deathsB
         end)
         
         -- Get config values (with fallback)

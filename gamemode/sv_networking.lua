@@ -8,6 +8,9 @@ if SERVER then
     -- Network string for MOAB sound
     util.AddNetworkString("SendMoabSound")
     
+    -- Network string for victory sound
+    util.AddNetworkString("SendVictorySound")
+    
     -- Network string for MOAB status sync
     util.AddNetworkString("SendMoabStatus")
     

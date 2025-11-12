@@ -9,6 +9,10 @@ if CLIENT then
     JDM.Client.Sounds.MOABSoundPath = "jdm_moabSound.wav"
     JDM.Client.Sounds.MOABFallbackSound = "ambient/machines/teleport1.wav"
     
+    -- Victory sound path (same location as annihilator sound)
+    JDM.Client.Sounds.VictorySoundPath = "jdm_winSound.wav"
+    JDM.Client.Sounds.VictoryFallbackSound = "ambient/machines/teleport1.wav"
+    
     -- Play MOAB sound
     function JDM.Client.Sounds.PlayMOAB()
         local soundPath = JDM.Client.Sounds.MOABSoundPath
@@ -27,9 +31,33 @@ if CLIENT then
         end
     end
     
+    -- Play victory sound
+    function JDM.Client.Sounds.PlayVictory()
+        local soundPath = JDM.Client.Sounds.VictorySoundPath
+        
+        print("[DEBUG] Attempting to play victory sound: " .. soundPath)
+        
+        -- Check if sound exists
+        local fullPath = "sound/" .. soundPath
+        if file.Exists(fullPath, "GAME") then
+            print("[DEBUG] Sound found, playing: " .. soundPath)
+            surface.PlaySound(soundPath)
+        else
+            print("[WARN] Sound " .. fullPath .. " was not found! Using fallback.")
+            -- Use fallback sound
+            surface.PlaySound(JDM.Client.Sounds.VictoryFallbackSound)
+        end
+    end
+    
     -- Receive command to play MOAB sound
     net.Receive("SendMoabSound", function()
         print("[DEBUG] Received SendMoabSound command from server")
         JDM.Client.Sounds.PlayMOAB()
+    end)
+    
+    -- Receive command to play victory sound
+    net.Receive("SendVictorySound", function()
+        print("[DEBUG] Received SendVictorySound command from server")
+        JDM.Client.Sounds.PlayVictory()
     end)
 end

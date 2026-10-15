@@ -1,0 +1,83 @@
+"jdeathmatch"
+{
+    "base"              "base"
+    "title"             "JDeathmatch"
+    "maps"              ""
+    "menusystem"        "1"
+
+    "settings"
+	{
+        1
+		{
+			"name"		"jdm_playerhealth"
+			"text"		"Player Health"
+			"help"		"Set player health (default 100)"
+			"type"		"Numeric"
+			"default"	"100"
+		}
+        2
+		{
+			"name"		"jdm_playerwalkspeed"
+			"text"		"Player Walk Speed (%)"
+			"help"		"Set player walk speed"
+			"type"		"Numeric"
+			"default"	"100"
+		}
+        3
+		{
+			"name"		"jdm_playerrunspeed"
+			"text"		"Player Run Speed (%)"
+			"help"		"Set player run speed"
+			"type"		"Numeric"
+			"default"	"100"
+		}
+		4
+		{
+			"name"		"jdm_gravity"
+			"text"		"Gravity (%)"
+			"help"		"Set gravity"
+			"type"		"Numeric"
+			"default"	"100"
+		}
+		5
+		{
+			"name"		"jdm_maxkills"
+			"text"		"Max Kills"
+			"help"		"Set Max Kills"
+			"type"		"Numeric"
+			"default"	"30"
+		}
+		6
+		{
+			"name"		"jdm_moabkills"
+			"text"		"Moab Kills"
+			"help"		"Set Moab Kills"
+			"type"		"Numeric"
+			"default"	"25"
+		}
+		7
+		{
+			"name"		"jdm_moabtimer"
+			"text"		"Moab Timer"
+			"help"		"Set Moab Timer"
+			"type"		"Numeric"
+			"default"	"30"
+		}
+		8
+        {
+            "name"      "jdm_flashlight"
+            "text"      "Enable Flashlight"
+            "help"      "Enable or disable flashlight"
+            "type"      "CheckBox"
+            "default"   "1"
+        }
+		9
+        {
+            "name"      "jdm_farspawn"
+            "text"      "Enable FarSpawn (BETA)"
+            "help"      "Enable or disable FarSpawn Calculation (BETA)"
+            "type"      "CheckBox"
+            "default"   "0"
+        }
+	}
+}

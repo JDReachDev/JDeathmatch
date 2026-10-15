@@ -1,0 +1,11 @@
+{
+	"title": "JDeathmatch",
+	"type": "gamemode",
+	"tags": [ "fun" ],
+	"ignore": [
+		"*.md",
+		"examples/*",
+		".git*",
+		"addon.json"
+	]
+}

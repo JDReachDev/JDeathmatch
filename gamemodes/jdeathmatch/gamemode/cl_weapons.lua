@@ -12,7 +12,7 @@ if CLIENT then
     
     -- Send weapon selection to server
     local function SendWeaponSelection(selection)
-        net.Start("SetPlayerWeapons")
+        net.Start("JDM_SetPlayerWeapons")
         for slot = 1, 4 do
             net.WriteString(selection[slot] or "")
         end
@@ -87,7 +87,7 @@ if CLIENT then
     
     -- Hook to open/close menu with Q
     hook.Add("PlayerButtonDown", "JDM_OpenWeaponMenuOnQ", function(ply, button)
-        if button == KEY_Q then
+        if button == KEY_Q and IsFirstTimePredicted() then
             if JDM.Client.Weapons.IsOpen then
                 JDM.Client.Weapons.CloseMenu()
             else
@@ -97,8 +97,24 @@ if CLIENT then
     end)
     
     -- Receive weapon lists from server
-    net.Receive("SendWeaponSlots", function()
+    net.Receive("JDM_SendWeaponSlots", function()
         JDM.Client.Weapons.Slots = net.ReadTable()
-        JDM.Client.Weapons.OpenMenu()
+        local openMenu = net.ReadBool()
+
+        -- Rebuild the menu with the new list
+        if IsValid(JDM.Client.Weapons.Frame) then
+            JDM.Client.Weapons.Frame:Remove()
+            JDM.Client.Weapons.IsOpen = false
+        end
+
+        if openMenu then
+            JDM.Client.Weapons.OpenMenu()
+        end
+    end)
+
+    -- Ask the server for the weapon list once the client is ready
+    hook.Add("InitPostEntity", "JDM_RequestWeaponSlots", function()
+        net.Start("JDM_RequestWeaponSlots")
+        net.SendToServer()
     end)
 end

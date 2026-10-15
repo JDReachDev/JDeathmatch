@@ -26,7 +26,7 @@ if CLIENT then
         
         listView.OnRowSelected = function(_, _, row)
             local selectedMap = row:GetColumnText(1)
-            net.Start("CastVote")
+            net.Start("JDM_CastVote")
             net.WriteString(selectedMap)
             net.SendToServer()
             frameMapVote:Close()
@@ -34,7 +34,7 @@ if CLIENT then
     end
     
     -- Receive map list from server
-    net.Receive("SendMapList", function()
+    net.Receive("JDM_SendMapList", function()
         JDM.Client.MapVote.AvailableMaps = net.ReadTable()
         JDM.Client.MapVote.OpenMenu()
     end)

@@ -2,21 +2,21 @@
 
 if SERVER then
     -- Network strings for weapons
-    util.AddNetworkString("SendWeaponSlots")
-    util.AddNetworkString("SetPlayerWeapons")
+    util.AddNetworkString("JDM_SendWeaponSlots")
+    util.AddNetworkString("JDM_SetPlayerWeapons")
+    util.AddNetworkString("JDM_RequestWeaponSlots")
     
     -- Network string for MOAB sound
-    util.AddNetworkString("SendMoabSound")
+    util.AddNetworkString("JDM_SendMoabSound")
     
     -- Network string for victory sound
-    util.AddNetworkString("SendVictorySound")
+    util.AddNetworkString("JDM_SendVictorySound")
     
     -- Network string for MOAB status sync
-    util.AddNetworkString("SendMoabStatus")
+    util.AddNetworkString("JDM_SendMoabStatus")
     
     -- Network strings for map voting
-    util.AddNetworkString("OpenMapVoteMenu")
-    util.AddNetworkString("SendMapList")
-    util.AddNetworkString("CastVote")
+    util.AddNetworkString("JDM_SendMapList")
+    util.AddNetworkString("JDM_CastVote")
 end
 

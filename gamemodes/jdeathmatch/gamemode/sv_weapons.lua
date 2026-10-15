@@ -185,11 +185,6 @@ if SERVER then
                         ply:SetAmmo(bagAmmo, ammoType, true)
                     end
                 end
-                
-                -- Damage multiplier (note: this modification does not persist after respawn)
-                if weaponObj.dmgmul and wep.Primary then
-                    wep.Primary.Damage = (wep.Primary.Damage or 10) * weaponObj.dmgmul
-                end
             end
         end
         
@@ -202,7 +197,7 @@ if SERVER then
     end
     
     -- Receive weapon selection from client
-    net.Receive("SetPlayerWeapons", function(len, ply)
+    net.Receive("JDM_SetPlayerWeapons", function(len, ply)
         if !IsValid(ply) then return end
 
         local steamID = ply:SteamID()
@@ -240,13 +235,38 @@ if SERVER then
         end
     end)
     
-    -- Send weapon list to clients when they connect
-    hook.Add("PlayerInitialSpawn", "JDM_SendWeaponSlots", function(ply)
-        if !IsValid(ply) then return end
-        
-        net.Start("SendWeaponSlots")
+    -- Damage multiplier from config (applied per hit, so it never stacks)
+    hook.Add("EntityTakeDamage", "JDM_WeaponDamageMultiplier", function(target, dmginfo)
+        local attacker = dmginfo:GetAttacker()
+        if !IsValid(attacker) or !attacker:IsPlayer() then return end
+
+        local wep = dmginfo:GetInflictor()
+        if wep == attacker then
+            wep = attacker:GetActiveWeapon()
+        end
+        if !IsValid(wep) then return end
+
+        local weaponObj = JDM.Weapons.Indexed[wep:GetClass()]
+        if weaponObj and isnumber(weaponObj.dmgmul) and weaponObj.dmgmul != 1 then
+            dmginfo:ScaleDamage(weaponObj.dmgmul)
+        end
+    end)
+
+    -- Send weapon slots to one player or a list of players
+    function JDM.Weapons.SendSlots(target, openMenu)
+        net.Start("JDM_SendWeaponSlots")
         net.WriteTable(JDM.Weapons.Slots)
-        net.Send(ply)
+        net.WriteBool(openMenu)
+        net.Send(target)
+    end
+
+    -- Client asks for the weapon list once it is fully loaded
+    -- (net messages sent during PlayerInitialSpawn can be lost)
+    net.Receive("JDM_RequestWeaponSlots", function(len, ply)
+        if !IsValid(ply) or ply.JDM_SlotsRequested then return end
+        ply.JDM_SlotsRequested = true
+
+        JDM.Weapons.SendSlots(ply, JDM.Player.FirstSpawn[ply:SteamID()] == true)
     end)
     
     -- Command to reload weapons
@@ -257,8 +277,9 @@ if SERVER then
         end
         
         JDM.Weapons.Load()
+        JDM.Weapons.SendSlots(player.GetHumans(), false)
         print("[INFO] Weapons configuration reloaded!")
-        
+
         if IsValid(ply) then
             ply:ChatPrint("Weapons configuration reloaded!")
         end

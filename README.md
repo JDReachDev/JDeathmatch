@@ -12,17 +12,32 @@
 - Server con supporto gamemode custom
 - File armi in `data/jdmw.txt`
 
+## Struttura del repository
+
+Il repository e un addon standard di Garry's Mod:
+
+```
+addon.json                      # metadati per pubblicare sul Workshop (gmad)
+gamemodes/jdeathmatch/
+    jdeathmatch.txt             # definizione gamemode + impostazioni menu
+    icon24.png, logo.png
+    gamemode/                   # codice Lua (cl_*, sv_*, sh_*)
+sound/                          # suoni MOAB e vittoria
+examples/jdmw.txt               # esempio di config armi (non incluso nel Workshop)
+```
+
 ## Installazione
 
-1. Copia la cartella della modalita sul server in:
-   - `garrysmod/gamemodes/jdeathmatch/`
-2. Verifica che il file `jdeathmatch.txt` sia nella root della gamemode.
-3. Assicurati che i file Lua siano in `garrysmod/gamemodes/jdeathmatch/gamemode/`.
-4. (Opzionale) Inserisci il suono MOAB in:
-   - `garrysmod/sound/jdm_moabSound.wav`
-5. Avvia la mappa con la modalita:
+1. Copia l'intera cartella del repository in:
+   - `garrysmod/addons/jdeathmatch/`
+   (in alternativa copia `gamemodes/` e `sound/` dentro `garrysmod/`)
+2. I suoni in `sound/` vengono inviati ai client automaticamente (`resource.AddFile`);
+   su server dedicati serve un FastDL o il Workshop.
+3. Avvia la mappa con la modalita:
    - `gamemode jdeathmatch`
    - oppure selezionala dal menu delle modalita.
+
+Per pubblicare sul Workshop: `gmad create -folder <repo> -out jdeathmatch.gma`.
 
 ## Configurazione (ConVar)
 
@@ -61,7 +76,7 @@ Se il file non esiste (o e invalido), `JDeathmatch` ne genera automaticamente un
 
 Per usare un file armi personalizzato:
 - crea o sostituisci `garrysmod/data/jdmw.txt` prima di avviare il server
-- se stai preparando l'addon in locale, puoi tenere una copia in `backup/jdmw.txt` ma il runtime usa solo `data/jdmw.txt`
+- se stai preparando l'addon in locale, trovi un esempio completo in `examples/jdmw.txt` (copialo in `data/`), ma il runtime usa solo `data/jdmw.txt`
 - dopo una modifica a caldo, usa `jdm_reloadWeaponsConfig` da admin/console server
 
 Formato JSON atteso (esempio):

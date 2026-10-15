@@ -42,7 +42,7 @@ if SERVER then
         PrintMessage(HUD_PRINTCENTER, message)
         
         -- Play sound to all players
-        net.Start("SendMoabSound")
+        net.Start("JDM_SendMoabSound")
         net.Broadcast()
         
         -- After X seconds, remove weapon
@@ -74,7 +74,7 @@ if SERVER then
     
     -- Sync MOAB status to all clients
     function JDM.MOAB.SyncToClients()
-        net.Start("SendMoabStatus")
+        net.Start("JDM_SendMoabStatus")
         -- Send list of SteamIDs who have MOAB
         local moabPlayers = {}
         for steamID, _ in pairs(JDM.MOAB.Players) do

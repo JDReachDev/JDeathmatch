@@ -44,12 +44,12 @@ if CLIENT then
     end
     
     -- Receive command to play MOAB sound
-    net.Receive("SendMoabSound", function()
+    net.Receive("JDM_SendMoabSound", function()
         JDM.Client.Sounds.PlayMOAB()
     end)
     
     -- Receive command to play victory sound
-    net.Receive("SendVictorySound", function()
+    net.Receive("JDM_SendVictorySound", function()
         JDM.Client.Sounds.PlayVictory()
     end)
 end

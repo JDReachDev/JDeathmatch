@@ -7,16 +7,6 @@ if SERVER then
     -- Table to track first spawn
     JDM.Player.FirstSpawn = {}
     
-    -- Helper function for table.HasValue (if it doesn't exist)
-    if !table.HasValue then
-        function table.HasValue(tbl, val)
-            for _, v in pairs(tbl) do
-                if v == val then return true end
-            end
-            return false
-        end
-    end
-    
     -- Player spawn handling
     function GM:PlayerSpawn(ply)
         if !IsValid(ply) then return end

@@ -22,7 +22,7 @@ if SERVER then
         JDM.Round.SlowMotionStartTime = CurTime()
         
         -- Play victory sound immediately
-        net.Start("SendVictorySound")
+        net.Start("JDM_SendVictorySound")
         net.Broadcast()
         
         -- Store original speeds and apply slow motion to all players
@@ -43,13 +43,11 @@ if SERVER then
             ply:SetRunSpeed(runSpeed * 0.5)
         end
         
-        -- Try to use host_timescale for true slow motion (requires server admin)
-        -- This will slow down everything: animations, physics, etc.
-        -- Note: host_timescale affects game speed but timers run in real time
-        RunConsoleCommand("host_timescale", "0.5")
-        
-        -- After 5 seconds of real time, end slow motion and show freeze frame
-        -- The game will run at 50% speed during these 5 real seconds
+        -- Slow down everything: animations, physics, etc.
+        -- (host_timescale would need sv_cheats, game.SetTimeScale does not)
+        game.SetTimeScale(0.5)
+
+        -- After 5 game seconds, end slow motion and show freeze frame
         timer.Create("JDM_Round_EndSlowMotion", 5, 1, function()
             JDM.Round.EndSlowMotionAndFreeze(winner)
         end)
@@ -57,13 +55,14 @@ if SERVER then
     
     -- End slow motion and freeze all players
     function JDM.Round.EndSlowMotionAndFreeze(winner)
-        if !IsValid(winner) then return end
-        
-        -- Reset slow motion
+        -- Reset slow motion (always, even if the winner disconnected)
         JDM.Round.SlowMotionActive = false
-        
-        -- Reset host_timescale to normal
-        RunConsoleCommand("host_timescale", "1.0")
+        game.SetTimeScale(1)
+
+        if !IsValid(winner) then
+            JDM.MapVote.ChangeToWinningMap()
+            return
+        end
         
         -- Restore original player speeds
         for _, ply in ipairs(player.GetAll()) do
@@ -105,7 +104,7 @@ if SERVER then
         -- After 5 seconds, show map voting menu
         timer.Create("JDM_Round_MapVote", 5, 1, function()
             if JDM.MapVote and JDM.MapVote.AvailableMaps then
-                net.Start("SendMapList")
+                net.Start("JDM_SendMapList")
                 net.WriteTable(JDM.MapVote.AvailableMaps)
                 net.Broadcast()
             end
@@ -127,6 +126,11 @@ if SERVER then
         JDM.Round.StartSlowMotion(winner)
     end
     
+    -- No respawning while the match is ending
+    hook.Add("PlayerDeathThink", "JDM_BlockRespawnOnRoundEnd", function(ply)
+        if JDM.Round.IsEnding then return false end
+    end)
+
     -- Check if a player has won
     hook.Add("PlayerDeath", "JDM_CheckWinner", function(victim, inflictor, attacker)
         if JDM.Round.IsEnding then return end

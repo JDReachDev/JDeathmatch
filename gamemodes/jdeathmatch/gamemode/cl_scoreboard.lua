@@ -271,7 +271,7 @@ if CLIENT then
     end)
     
     -- Receive MOAB status from server
-    net.Receive("SendMoabStatus", function()
+    net.Receive("JDM_SendMoabStatus", function()
         local moabPlayers = net.ReadTable()
         -- Clear and rebuild MOAB players table
         JDM.Client.Scoreboard.MOABPlayers = {}

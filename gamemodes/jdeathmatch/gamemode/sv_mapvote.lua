@@ -68,7 +68,7 @@ if SERVER then
     end
     
     -- Receive player vote
-    net.Receive("CastVote", function(len, ply)
+    net.Receive("JDM_CastVote", function(len, ply)
         if !IsValid(ply) then return end
         
         local mapChoice = net.ReadString()

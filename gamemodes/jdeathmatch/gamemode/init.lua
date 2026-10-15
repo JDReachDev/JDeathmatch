@@ -2,16 +2,20 @@
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
 AddCSLuaFile("sh_config.lua")
+AddCSLuaFile("sh_convars.lua")
 AddCSLuaFile("cl_weapons.lua")
 AddCSLuaFile("cl_mapvote.lua")
 AddCSLuaFile("cl_sounds.lua")
 AddCSLuaFile("cl_scoreboard.lua")
 
+-- Custom sounds clients must download (when not installed via Workshop)
+resource.AddFile("sound/jdm_moabSound.wav")
+resource.AddFile("sound/jdm_winSound.wav")
+
 -- Include shared files
 include("shared.lua")
 
 -- Include server-side modules
-include("sv_config.lua")
 include("sv_networking.lua")
 include("sv_spawn.lua")
 include("sv_weapons.lua")

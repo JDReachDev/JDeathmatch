@@ -20,23 +20,14 @@ gamemodes/jdeathmatch/
     gamemode/                   # Lua code (cl_* client, sv_* server, sh_* shared)
 sound/                          # MOAB and victory sounds
 examples/jdmw.txt               # example weapons config (not packed into the Workshop addon)
+publish/                        # Workshop publishing tools (see publish/README.md)
 ```
 
-## Installation
+## Download
 
-1. Copy the whole repository folder into `garrysmod/addons/jdeathmatch/`
-   (or copy `gamemodes/` and `sound/` directly into `garrysmod/`).
-2. Start a map with the gamemode:
-   - from the console: `gamemode jdeathmatch` then `map dm_lockdown`
-   - or pick **JDeathmatch** from the gamemode list in the main menu.
-3. The custom sounds are sent to clients automatically (`resource.AddFile`).
-   On a dedicated server you need FastDL or the Workshop version for clients to download them.
+**Steam Workshop:** _coming soon_
 
-To publish on the Steam Workshop (icon, title, tags, description, updates) see [`publish/README.md`](publish/README.md). To only build the package:
-
-```bash
-gmad create -folder "path/to/repo" -out jdeathmatch.gma
-```
+Subscribe on the Workshop, then pick **JDeathmatch** from the gamemode list in the main menu.
 
 ## Server settings (ConVars)
 
@@ -164,7 +155,7 @@ The new list is sent to all connected players; new loadouts apply on their next 
 - **I get an ERROR model or nothing when spawning**
   - The weapon addon is not installed on the server or on the client.
 - **The MOAB / victory sound does not play**
-  - Clients must download `sound/jdm_moabsound.wav` and `sound/jdm_winsound.wav` (FastDL or Workshop). A fallback HL2 sound is used if missing.
+  - On a dedicated server, add JDeathmatch to the server's Workshop collection so clients download it. A fallback HL2 sound is used if missing.
 - **No maps in the vote**
   - Install maps whose name starts with `dm_` or `ttt_`.
 

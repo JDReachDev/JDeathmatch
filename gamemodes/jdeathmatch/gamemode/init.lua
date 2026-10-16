@@ -9,8 +9,8 @@ AddCSLuaFile("cl_sounds.lua")
 AddCSLuaFile("cl_scoreboard.lua")
 
 -- Custom sounds clients must download (when not installed via Workshop)
-resource.AddFile("sound/jdm_moabSound.wav")
-resource.AddFile("sound/jdm_winSound.wav")
+resource.AddFile("sound/jdm_moabsound.wav")
+resource.AddFile("sound/jdm_winsound.wav")
 
 -- Include shared files
 include("shared.lua")

@@ -6,11 +6,11 @@ if CLIENT then
     JDM.Client.Sounds = JDM.Client.Sounds or {}
     
     -- MOAB sound path
-    JDM.Client.Sounds.MOABSoundPath = "jdm_moabSound.wav"
+    JDM.Client.Sounds.MOABSoundPath = "jdm_moabsound.wav"
     JDM.Client.Sounds.MOABFallbackSound = "ambient/machines/teleport1.wav"
     
     -- Victory sound path (same location as annihilator sound)
-    JDM.Client.Sounds.VictorySoundPath = "jdm_winSound.wav"
+    JDM.Client.Sounds.VictorySoundPath = "jdm_winsound.wav"
     JDM.Client.Sounds.VictoryFallbackSound = "ambient/machines/teleport1.wav"
     
     -- Play MOAB sound

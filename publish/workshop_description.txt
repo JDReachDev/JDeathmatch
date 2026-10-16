@@ -1,0 +1,35 @@
+[h1]JDeathmatch[/h1]
+A customizable free-for-all deathmatch gamemode.
+
+[h2]Features[/h2]
+[list]
+[*] Loadout menu (press [b]Q[/b]) with primary, secondary and two special slots
+[*] Weapons fully configurable through a JSON file - works with any SWEP pack (M9K, etc.)
+[*] [b]MOAB[/b] killstreak: reach the kill threshold and become the Annihilator with a random super weapon
+[*] Slow-motion match ending and winner spectate
+[*] End-of-match map vote ([i]dm_[/i] and [i]ttt_[/i] maps)
+[*] Custom scoreboard with K/D, MOAB status and win progress
+[/list]
+
+[h2]Settings[/h2]
+All settings are available in the Start New Game menu or as ConVars:
+[table]
+[tr][th]ConVar[/th][th]Default[/th][th]Description[/th][/tr]
+[tr][td]jdm_playerhealth[/td][td]100[/td][td]Player health[/td][/tr]
+[tr][td]jdm_playerwalkspeed[/td][td]100[/td][td]Walk speed (%)[/td][/tr]
+[tr][td]jdm_playerrunspeed[/td][td]100[/td][td]Sprint speed (%)[/td][/tr]
+[tr][td]jdm_gravity[/td][td]100[/td][td]Gravity (%)[/td][/tr]
+[tr][td]jdm_maxkills[/td][td]30[/td][td]Kills to win[/td][/tr]
+[tr][td]jdm_moabkills[/td][td]25[/td][td]Kills to get the MOAB[/td][/tr]
+[tr][td]jdm_moabtimer[/td][td]30[/td][td]MOAB duration (seconds)[/td][/tr]
+[tr][td]jdm_flashlight[/td][td]1[/td][td]Allow flashlight[/td][/tr]
+[tr][td]jdm_farspawn[/td][td]0[/td][td]Spawn far from enemies (beta)[/td][/tr]
+[/table]
+
+[h2]Weapons[/h2]
+Weapons are defined in [b]garrysmod/data/jdmw.txt[/b] (generated on first start).
+Run [b]jdm_reloadWeaponsConfig[/b] after editing it.
+Full guide and examples: [url=https://github.com/JDReachDev/JDeathmatch]GitHub[/url]
+
+[h2]Source & bug reports[/h2]
+[url=https://github.com/JDReachDev/JDeathmatch]github.com/JDReachDev/JDeathmatch[/url]

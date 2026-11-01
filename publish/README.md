@@ -65,8 +65,8 @@ Replace `icon.jpg` with your own image: **JPEG, exactly 512x512 pixels**, ideall
 Or regenerate it with `make_icon.ps1` (blurred screenshot background, 3D crosshair, title):
 
 ```powershell
-powershell -File publishmake_icon.ps1                                  # writes publishicon.jpg
-powershell -File publishmake_icon.ps1 -Background docsscreenshotsdam.jpg -RotateY 20 -Size 1.1
+powershell -File publish\make_icon.ps1                                  # writes publish\icon.jpg
+powershell -File publish\make_icon.ps1 -Background docs\screenshots\dam.jpg -RotateY 20 -Size 1.1
 ```
 
 The script checks the format before uploading.

@@ -6,7 +6,7 @@ $MaxDescription = 8000 # Workshop limit
 function Get-CompactWeaponConfig([string]$jsonPath) {
     $weapons = Get-Content $jsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
     $lines = foreach ($w in $weapons) {
-        '  { "id": "' + $w.id + '", "name": "' + ($w.name -replace '"', '\"') + '", "slot": ' + $w.slot +
+        '  { "id": "' + $w.id + '", "name": "' + ($w.name -replace '"', "'") + '", "slot": ' + $w.slot +
             ', "ammo": ' + $w.ammo + ', "dmgmul": ' + ([string]$w.dmgmul).Replace(',', '.') + ' }'
     }
     return "[`n" + ($lines -join ",`n") + "`n]"

@@ -102,9 +102,13 @@ function Invoke-Logged([string]$exe, [string[]]$arguments) {
     return ($lines -join "`n")
 }
 
-# Escape a string for a quoted VDF (KeyValues) value
+# Quote a string for a VDF (KeyValues) value.
+# SteamCMD's parser has no escape sequences (\" breaks it), so straight quotes become typographic ones;
+# the gamemode accepts them in jdmw.txt, so the config in a description can still be copied as is.
 function ConvertTo-VdfString([string]$value) {
-    return '"' + ($value -replace '\\', '\\' -replace '"', '\"') + '"'
+    $value = [regex]::Replace($value, '"([^"\n]*)"', ([char]0x201C + '$1' + [char]0x201D))
+    $value = $value.Replace('"', [string][char]0x201D)
+    return '"' + $value + '"'
 }
 
 function Install-SteamCmd {

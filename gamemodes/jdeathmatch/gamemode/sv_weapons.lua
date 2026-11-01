@@ -58,6 +58,9 @@ if SERVER then
             end
         end
         
+        -- Accept typographic quotes “ ” (a config copied from a Workshop description has them)
+        jsonData = jsonData:gsub("\226\128\156", '"'):gsub("\226\128\157", '"')
+
         JDM.Weapons.List = util.JSONToTable(jsonData)
         if !istable(JDM.Weapons.List) or #JDM.Weapons.List == 0 then
             if !JDM.Weapons.WriteDefaultConfig(filePath) then

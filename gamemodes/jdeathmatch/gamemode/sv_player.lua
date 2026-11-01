@@ -12,7 +12,7 @@ if SERVER then
         if !IsValid(ply) then return end
         
         -- First spawn: put in spectate
-        if JDM.Player.FirstSpawn[ply:SteamID()] then
+        if JDM.Player.FirstSpawn[JDM.PlayerKey(ply)] then
             ply:StripWeapons()
             ply:Spectate(OBS_MODE_ROAMING)
             return
@@ -36,29 +36,32 @@ if SERVER then
         ply:SetHealth(health)
         ply:SetWalkSpeed(2.65 * GetConVar("jdm_playerwalkspeed"):GetFloat())
         ply:SetRunSpeed(4.10 * GetConVar("jdm_playerrunspeed"):GetFloat())
-        ply:SetGravity(0.008 * GetConVar("jdm_gravity"):GetFloat())
-        
-        ply:SetupHands()
-        
+        ply:SetGravity(0.01 * GetConVar("jdm_gravity"):GetFloat())
+
         -- Flashlight
         if GetConVar("jdm_flashlight"):GetBool() then
             ply:AllowFlashlight(true)
         else
             ply:AllowFlashlight(false)
         end
-        
-        -- Player model
+
+        -- Player model (before SetupHands, so the hands match the model)
         local preferredModel = player_manager.TranslatePlayerModel(ply:GetInfo("cl_playermodel"))
         if preferredModel then
             ply:SetModel(preferredModel)
         end
+
+        ply:SetupHands()
     end
     
     -- First spawn handling
     function GM:PlayerInitialSpawn(ply)
         if !IsValid(ply) then return end
-        
-        JDM.Player.FirstSpawn[ply:SteamID()] = true
+
+        -- Bots can't use the loadout menu: they spawn right away with the default weapon
+        if ply:IsBot() then return end
+
+        JDM.Player.FirstSpawn[JDM.PlayerKey(ply)] = true
         
         ply:ChatPrint("Welcome to JDeathmatch")
         ply:ChatPrint("Press Q to access the weapon menu")
@@ -71,15 +74,13 @@ if SERVER then
         if !IsValid(ply) then return end
         
         -- Skip if first spawn
-        if JDM.Player.FirstSpawn[ply:SteamID()] then
+        if JDM.Player.FirstSpawn[JDM.PlayerKey(ply)] then
             return
         end
         
-        -- Get player selection
-        local selection = JDM.Weapons.PlayerSelections[ply:SteamID()]
-        if selection then
-            JDM.Weapons.GiveToPlayer(ply, selection)
-        end
+        -- Get player selection (no selection = default weapon)
+        local selection = JDM.Weapons.PlayerSelections[JDM.PlayerKey(ply)]
+        JDM.Weapons.GiveToPlayer(ply, selection or {})
     end)
     
     -- Remove annoying tinnitus sound
@@ -91,7 +92,7 @@ if SERVER then
     hook.Add("PlayerDisconnected", "JDM_CleanupPlayerData", function(ply)
         if !IsValid(ply) then return end
         
-        local steamID = ply:SteamID()
+        local steamID = JDM.PlayerKey(ply)
         JDM.Player.FirstSpawn[steamID] = nil
         JDM.Weapons.PlayerSelections[steamID] = nil
         

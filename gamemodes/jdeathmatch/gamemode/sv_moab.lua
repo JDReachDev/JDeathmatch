@@ -57,11 +57,11 @@ if SERVER then
     
     -- Check if a player has reached MOAB kills
     hook.Add("PlayerDeath", "JDM_CheckMOABKills", function(victim, inflictor, attacker)
-        if !IsValid(attacker) or !attacker:IsPlayer() then return end
-        
+        if !IsValid(attacker) or !attacker:IsPlayer() or attacker == victim then return end
+
         local kills = attacker:Frags()
         local moabKills = GetConVar("jdm_moabkills"):GetInt()
-        local steamID = attacker:SteamID()
+        local steamID = JDM.PlayerKey(attacker)
         
         -- Check if reached MOAB kills and hasn't received MOAB yet
         if kills == moabKills and !JDM.MOAB.Players[steamID] then
@@ -75,7 +75,7 @@ if SERVER then
     -- Sync MOAB status to all clients
     function JDM.MOAB.SyncToClients()
         net.Start("JDM_SendMoabStatus")
-        -- Send list of SteamIDs who have MOAB
+        -- Send list of player keys (UserIDs) who have MOAB
         local moabPlayers = {}
         for steamID, _ in pairs(JDM.MOAB.Players) do
             table.insert(moabPlayers, steamID)

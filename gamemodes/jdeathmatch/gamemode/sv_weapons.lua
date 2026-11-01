@@ -168,7 +168,11 @@ if SERVER then
                     local maxClipSize = wep:GetMaxClip1()
                     local clipAmmo, bagAmmo
                     
-                    if maxClipSize > weaponObj.ammo then
+                    if maxClipSize <= 0 then
+                        -- No clip (grenades, etc.): everything goes to the reserve
+                        clipAmmo = maxClipSize
+                        bagAmmo = weaponObj.ammo
+                    elseif maxClipSize > weaponObj.ammo then
                         clipAmmo = weaponObj.ammo
                         bagAmmo = 0
                     else
@@ -200,7 +204,7 @@ if SERVER then
     net.Receive("JDM_SetPlayerWeapons", function(len, ply)
         if !IsValid(ply) then return end
 
-        local steamID = ply:SteamID()
+        local steamID = JDM.PlayerKey(ply)
         local now = CurTime()
         local lastUpdate = JDM.Weapons.LastSelectionAt[steamID] or 0
         if now - lastUpdate < 1 then
@@ -246,10 +250,29 @@ if SERVER then
         end
         if !IsValid(wep) then return end
 
-        local weaponObj = JDM.Weapons.Indexed[wep:GetClass()]
+        -- Projectiles (grenades, rockets, ...) carry the class of the weapon that fired them
+        local weaponObj = JDM.Weapons.Indexed[wep.JDM_WeaponClass or wep:GetClass()]
         if weaponObj and isnumber(weaponObj.dmgmul) and weaponObj.dmgmul != 1 then
             dmginfo:ScaleDamage(weaponObj.dmgmul)
         end
+    end)
+
+    -- Tag projectiles with the weapon their owner was holding when they were created
+    hook.Add("OnEntityCreated", "JDM_TagProjectileWeapon", function(ent)
+        if ent:IsWeapon() or ent:IsPlayer() then return end
+
+        -- Owner is set right after creation, so check on the next tick
+        timer.Simple(0, function()
+            if !IsValid(ent) then return end
+
+            local owner = ent:GetOwner()
+            if !IsValid(owner) or !owner:IsPlayer() then return end
+
+            local wep = owner:GetActiveWeapon()
+            if IsValid(wep) then
+                ent.JDM_WeaponClass = wep:GetClass()
+            end
+        end)
     end)
 
     -- Send weapon slots to one player or a list of players
@@ -266,7 +289,7 @@ if SERVER then
         if !IsValid(ply) or ply.JDM_SlotsRequested then return end
         ply.JDM_SlotsRequested = true
 
-        JDM.Weapons.SendSlots(ply, JDM.Player.FirstSpawn[ply:SteamID()] == true)
+        JDM.Weapons.SendSlots(ply, JDM.Player.FirstSpawn[JDM.PlayerKey(ply)] == true)
     end)
     
     -- Command to reload weapons

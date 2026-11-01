@@ -202,14 +202,14 @@ if CLIENT then
                 local moabColor = Color(200, 200, 200, 255)
                 
                 -- Check if player has already received MOAB
-                local steamID = ply:SteamID()
+                local steamID = JDM.PlayerKey(ply)
                 local hasMOAB = JDM.Client.Scoreboard.MOABPlayers[steamID] == true
                 
                 if hasMOAB then
                     moabText = "MOAB ✓"
                     moabColor = Color(255, 100, 100, 255)
                 else
-                    moabText = "K to MOAB: " .. (moabKills - kills)
+                    moabText = "K to MOAB: " .. math.max(moabKills - kills, 0)
                     moabColor = Color(150, 150, 150, 255)
                 end
                 
@@ -217,7 +217,7 @@ if CLIENT then
                 
                 -- Progress to win
                 local progressX = w * 0.9
-                local progress = math.min(kills / maxKills, 1)
+                local progress = maxKills > 0 and math.Clamp(kills / maxKills, 0, 1) or 0
                 local progressColor = Color(0, 255, 0, 255)
                 if progress < 0.5 then
                     progressColor = Color(255, 255, 0, 255)
@@ -236,6 +236,8 @@ if CLIENT then
         if IsValid(panel) then
             panel:SetVisible(true)
             panel:MakePopup()
+            -- Keep the keyboard free, otherwise releasing Tab never hides the scoreboard
+            panel:SetKeyboardInputEnabled(false)
             JDM.Client.Scoreboard.Update()
         end
     end

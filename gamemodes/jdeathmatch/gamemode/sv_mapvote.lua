@@ -19,7 +19,12 @@ if SERVER then
                 table.insert(JDM.MapVote.AvailableMaps, mapName)
             end
         end
-        
+
+        -- No dm_/ttt_ maps installed: offer the current map, so the match can still restart
+        if #JDM.MapVote.AvailableMaps == 0 then
+            table.insert(JDM.MapVote.AvailableMaps, game.GetMap())
+        end
+
         print("[INFO] Available maps for voting:", table.concat(JDM.MapVote.AvailableMaps, ", "))
     end
     
@@ -80,7 +85,7 @@ if SERVER then
         end
         
         -- Save vote
-        JDM.MapVote.Votes[ply:SteamID()] = mapChoice
+        JDM.MapVote.Votes[JDM.PlayerKey(ply)] = mapChoice
         ply:ChatPrint("You voted for: " .. mapChoice)
     end)
     

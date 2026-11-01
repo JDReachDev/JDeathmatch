@@ -37,7 +37,11 @@ if CLIENT then
         JDM.Client.Weapons.Frame = frame
         local weaponSelection = {} -- To save player choices
         
-        for slot, weapons in pairs(JDM.Client.Weapons.Slots) do
+        -- Fixed order (pairs() does not guarantee it); skip empty slots
+        for slot = 1, 4 do
+            local weapons = JDM.Client.Weapons.Slots[slot]
+            if !weapons or #weapons == 0 then continue end
+
             local slotPanel = vgui.Create("DPanel", frame)
             slotPanel:SetTall(40)
             slotPanel:Dock(TOP)

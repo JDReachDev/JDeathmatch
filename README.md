@@ -157,7 +157,7 @@ The new list is sent to all connected players; new loadouts apply on their next 
 - **The MOAB / victory sound does not play**
   - On a dedicated server, add JDeathmatch to the server's Workshop collection so clients download it. A fallback HL2 sound is used if missing.
 - **No maps in the vote**
-  - Install maps whose name starts with `dm_` or `ttt_`.
+  - Install maps whose name starts with `dm_` or `ttt_`. With none installed, only the current map is offered.
 
 ## Compatibility
 

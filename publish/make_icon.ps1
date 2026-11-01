@@ -12,8 +12,11 @@ param(
     [string]$Out = (Join-Path $PSScriptRoot "icon.jpg"),
     [string]$Title = "JDEATHMATCH",
     # Crosshair rotation in degrees (Y = left/right, X = up/down)
-    [double]$RotateY = 15,
-    [double]$RotateX = -9,
+    [double]$RotateY = 0,
+    [double]$RotateX = 0,
+    # Where the 3D depth shows, in pixels at full depth (positive = down / right)
+    [double]$ExtrudeX = 0,
+    [double]$ExtrudeY = 12,
     # Crosshair size (1 = same as the old icon)
     [double]$Size = 1.07
 )
@@ -33,13 +36,17 @@ using System.Runtime.InteropServices;
 public static class JdmIcon
 {
     const int S = 512;
-    static readonly PointF Center = new PointF(256, 186);
+    static readonly PointF Center = new PointF(256, 194);
     const float Focal = 700f, Depth = 30f;
     static float Half = 160f;
     static float Scale = 1f;
+    static float ExtrudeX, ExtrudeY;
 
-    public static void Render(string bgPath, string outPath, string title, double rotY, double rotX, double size)
+    public static void Render(string bgPath, string outPath, string title, double rotY, double rotX, double size,
+                              double extrudeX, double extrudeY)
     {
+        ExtrudeX = (float)extrudeX;
+        ExtrudeY = (float)extrudeY;
         Scale = (float)size;
         Half = 160f * Scale;
         using (var bmp = new Bitmap(S, S, PixelFormat.Format32bppArgb))
@@ -175,7 +182,10 @@ public static class JdmIcon
 
     static PointF Project(double x, double y, double z, double ry, double rx)
     {
-        // Rotate around Y, then X, then perspective
+        // Oblique shift of the back layers, then rotate around Y and X, then perspective
+        // (centered: front and back are shifted by half the depth each way)
+        x += ExtrudeX * (z / Depth - 0.5);
+        y += ExtrudeY * (z / Depth - 0.5);
         double x1 = x * Math.Cos(ry) + z * Math.Sin(ry);
         double z1 = -x * Math.Sin(ry) + z * Math.Cos(ry);
         double y2 = y * Math.Cos(rx) - z1 * Math.Sin(rx);
@@ -333,5 +343,5 @@ public static class JdmIcon
 
 $Background = (Resolve-Path $Background).Path
 $Out = [System.IO.Path]::GetFullPath($Out)
-[JdmIcon]::Render($Background, $Out, $Title, $RotateY, $RotateX, $Size)
+[JdmIcon]::Render($Background, $Out, $Title, $RotateY, $RotateX, $Size, $ExtrudeX, $ExtrudeY)
 Write-Host "Icon saved: $Out"

@@ -9,6 +9,7 @@ It is excluded from the `.gma` package (see `ignore` in `addon.json`).
 | `publish.ps1` | Build + create/update + description script. |
 | `preview_description.bat` | Double-click to preview the description as it will look on the Workshop. |
 | `icon.jpg` | Workshop thumbnail. **Must be a 512x512 JPEG.** |
+| `make_icon.ps1` | Renders `icon.jpg` (see below). |
 | `workshop_description.txt` | Workshop description in Steam BBCode. **Edit it here, not on the website**: every upload overwrites the page. |
 | `workshop_id.txt` | Created after the first upload. Its presence makes the script *update* instead of *create*. |
 | `collection_id.txt`, `collection_title.txt`, `collection_description.txt` | The example collection ("Pure Chaos") linked from the addon page. |
@@ -61,6 +62,12 @@ Notes:
 ## 2. Set the icon
 
 Replace `icon.jpg` with your own image: **JPEG, exactly 512x512 pixels**, ideally under 1 MB.
+Or regenerate it with `make_icon.ps1` (blurred screenshot background, 3D crosshair, title):
+
+```powershell
+powershell -File publishmake_icon.ps1                                  # writes publishicon.jpg
+powershell -File publishmake_icon.ps1 -Background docsscreenshotsdam.jpg -RotateY 20 -Size 1.1
+```
 The script checks the format before uploading.
 
 ## 3. Upload

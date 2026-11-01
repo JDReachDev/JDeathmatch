@@ -124,7 +124,8 @@ function Install-SteamCmd {
 # Push title (optional), description and visibility with SteamCMD (gmpublish cannot do it).
 # With $contentFolder it also uploads the .gma in that folder (fallback when gmpublish fails).
 function Update-WorkshopMetadata([string]$workshopId, [string]$title, [string]$descriptionPath,
-                                 [string]$contentFolder = "", [string]$changeNote = "") {
+                                 [string]$contentFolder = "", [string]$changeNote = "",
+                                 [string]$previewFile = "") {
     if (!$workshopId) { throw "No Workshop ID: upload the addon first (publish.bat) or write the ID in publish\workshop_id.txt." }
     $description = Read-Description $descriptionPath $RepoRoot
 
@@ -148,6 +149,7 @@ function Update-WorkshopMetadata([string]$workshopId, [string]$title, [string]$d
     # Without "contentfolder" SteamCMD only updates the metadata, the .gma uploaded by gmpublish stays
     if ($contentFolder) { $vdfLines += "    `"contentfolder`" $(ConvertTo-VdfString $contentFolder)" }
     if ($changeNote)    { $vdfLines += "    `"changenote`" $(ConvertTo-VdfString $changeNote)" }
+    if ($previewFile)   { $vdfLines += "    `"previewfile`" $(ConvertTo-VdfString $previewFile)" }
     $vdfLines += '}'
 
     New-Item -ItemType Directory -Force $OutDir | Out-Null
@@ -219,7 +221,8 @@ if ($workshopId) {
         if (Test-Path $contentDir) { Remove-Item $contentDir -Recurse -Force }
         New-Item -ItemType Directory -Force $contentDir | Out-Null
         Copy-Item $GmaPath $contentDir
-        Update-WorkshopMetadata $workshopId $addon.title $DescriptionFile $contentDir $Changes
+        $preview = if ($UpdateIcon) { $IconPath } else { "" }
+        Update-WorkshopMetadata $workshopId $addon.title $DescriptionFile $contentDir $Changes $preview
         return
     }
     Write-Host "Updated: https://steamcommunity.com/sharedfiles/filedetails/?id=$workshopId" -ForegroundColor Green

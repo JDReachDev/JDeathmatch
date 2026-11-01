@@ -204,9 +204,10 @@ if ($workshopId) {
     $log = Invoke-Logged $gmpublish @("create", "-addon", $GmaPath, "-icon", $IconPath)
     if ($script:LastToolExitCode -ne 0) { throw "gmpublish create failed." }
 
-    $match = [regex]::Match($log, '(?:UID|id)\D{0,5}(\d{6,})', 'IgnoreCase')
+    # gmpublish prints "Your new item ID is <id>" (the log also contains your SteamID, so be specific)
+    $match = [regex]::Match($log, 'item ID is (\d+)|filedetails/\?id=(\d+)', 'IgnoreCase')
     if ($match.Success) {
-        $workshopId = $match.Groups[1].Value
+        $workshopId = if ($match.Groups[1].Success) { $match.Groups[1].Value } else { $match.Groups[2].Value }
         $workshopId | Set-Content $IdFile -NoNewline
         Write-Host "Created: https://steamcommunity.com/sharedfiles/filedetails/?id=$workshopId" -ForegroundColor Green
         Write-Host "Saved the ID to publish\workshop_id.txt - commit it so future runs update instead of creating."

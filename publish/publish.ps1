@@ -121,8 +121,10 @@ function Install-SteamCmd {
     Remove-Item $zip
 }
 
-# Push title (optional), description and visibility with SteamCMD (gmpublish cannot do it)
-function Update-WorkshopMetadata([string]$workshopId, [string]$title, [string]$descriptionPath) {
+# Push title (optional), description and visibility with SteamCMD (gmpublish cannot do it).
+# With $contentFolder it also uploads the .gma in that folder (fallback when gmpublish fails).
+function Update-WorkshopMetadata([string]$workshopId, [string]$title, [string]$descriptionPath,
+                                 [string]$contentFolder = "", [string]$changeNote = "") {
     if (!$workshopId) { throw "No Workshop ID: upload the addon first (publish.bat) or write the ID in publish\workshop_id.txt." }
     $description = Read-Description $descriptionPath $RepoRoot
 
@@ -143,9 +145,11 @@ function Update-WorkshopMetadata([string]$workshopId, [string]$title, [string]$d
     $vdfLines += "    `"description`" $(ConvertTo-VdfString $description)"
     $visibilityCodes = @{ public = 0; friends = 1; private = 2; unlisted = 3 }
     if ($Visibility) { $vdfLines += "    `"visibility`" `"$($visibilityCodes[$Visibility])`"" }
+    # Without "contentfolder" SteamCMD only updates the metadata, the .gma uploaded by gmpublish stays
+    if ($contentFolder) { $vdfLines += "    `"contentfolder`" $(ConvertTo-VdfString $contentFolder)" }
+    if ($changeNote)    { $vdfLines += "    `"changenote`" $(ConvertTo-VdfString $changeNote)" }
     $vdfLines += '}'
 
-    # No "contentfolder": SteamCMD only updates the metadata, the .gma uploaded by gmpublish stays
     New-Item -ItemType Directory -Force $OutDir | Out-Null
     $vdfPath = Join-Path $OutDir "workshop_item.vdf"
     [System.IO.File]::WriteAllText($vdfPath, ($vdfLines -join "`r`n"), (New-Object System.Text.UTF8Encoding($false)))
@@ -206,8 +210,18 @@ if ($workshopId) {
     if (!$Changes) { $Changes = Read-Host "Changelog for this update" }
     $publishArgs = @("update", "-addon", $GmaPath, "-id", $workshopId, "-changes", $Changes)
     if ($UpdateIcon) { $publishArgs += @("-icon", $IconPath) }
-    Invoke-Logged $gmpublish $publishArgs | Out-Null
-    if ($script:LastToolExitCode -ne 0) { throw "gmpublish update failed." }
+    $log = Invoke-Logged $gmpublish $publishArgs
+    if ($script:LastToolExitCode -ne 0 -or $log -match 'Update failed') {
+        # gmpublish sometimes fails with "File not found": upload the .gma with SteamCMD instead
+        # (this also pushes title and description, as a normal update does)
+        Write-Warning "gmpublish update failed, uploading the .gma with SteamCMD instead."
+        $contentDir = Join-Path $OutDir "content"
+        if (Test-Path $contentDir) { Remove-Item $contentDir -Recurse -Force }
+        New-Item -ItemType Directory -Force $contentDir | Out-Null
+        Copy-Item $GmaPath $contentDir
+        Update-WorkshopMetadata $workshopId $addon.title $DescriptionFile $contentDir $Changes
+        return
+    }
     Write-Host "Updated: https://steamcommunity.com/sharedfiles/filedetails/?id=$workshopId" -ForegroundColor Green
 } else {
     # First upload: create the Workshop item and remember its ID

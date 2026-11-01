@@ -18,5 +18,10 @@ if SERVER then
     -- Network strings for map voting
     util.AddNetworkString("JDM_SendMapList")
     util.AddNetworkString("JDM_CastVote")
+
+    -- Network strings for the admin weapon config editor
+    util.AddNetworkString("JDM_AdminRequestEditor")
+    util.AddNetworkString("JDM_AdminOpenEditor")
+    util.AddNetworkString("JDM_AdminSaveConfig")
 end
 

@@ -163,6 +163,9 @@ if SERVER then
             local wep = ply:GetWeapon(weaponID)
             
             if IsValid(wep) then
+                -- Group in the weapon selector (cl_weaponselect.lua)
+                wep:SetNWInt("JDM_Slot", slot)
+
                 local weaponObj = JDM.Weapons.Indexed[weaponID]
                 if !weaponObj then continue end
                 

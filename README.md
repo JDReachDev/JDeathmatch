@@ -132,11 +132,20 @@ jdm_reloadWeaponsConfig
 
 The new list is sent to all connected players; new loadouts apply on their next spawn.
 
+### Editing the config in-game (admins)
+
+Press `F3` (or run `jdm_admin`, or use the button in the `Q` menu) to open the weapons editor:
+change name, slot, ammo and damage multiplier, add installed weapons (searchable list, or type a class)
+and remove them. **Save and apply** validates the list, writes `data/jdmw.txt` (the previous one is kept
+as `data/jdmw_backup.txt`) and sends it to every player.
+
 ## Gameplay
 
 - On first join the player is a spectator until they save a loadout.
 - Press `Q` to open/close the loadout menu. Changes apply on the next spawn.
 - Hold `Tab` for the scoreboard (kills, deaths, K/D, MOAB status, progress to win).
+- Mouse wheel and number keys pick weapons by loadout group: `1` primary, `2` secondary, `3`/`4` specials, `5` MOAB and extras.
+- The HUD shows health, armor, ammo (clip / reserve and alt-fire) and the kills needed to win, with the MOAB mark.
 - At `jdm_moabkills` kills the player becomes the **Annihilator** and gets a random MOAB weapon for `jdm_moabtimer` seconds.
 - At `jdm_maxkills` kills the match ends: slow motion, everyone spectates the winner, then a map vote opens.
 - The map vote lists every installed map starting with `dm_` or `ttt_`. If nobody votes, a random one is chosen.
@@ -146,6 +155,7 @@ The new list is sent to all connected players; new loadouts apply on their next 
 | Command | Who | Description |
 |---|---|---|
 | `jdm_reloadWeaponsConfig` | admin / server console | Reload `data/jdmw.txt` and push it to clients. |
+| `jdm_admin` (or `F3`) | admin | Open the in-game weapons editor. |
 
 ## Troubleshooting
 

@@ -28,7 +28,7 @@ if CLIENT then
         
         local frame = vgui.Create("DFrame")
         frame:SetTitle("Select your weapons")
-        frame:SetSize(400, 300)
+        frame:SetSize(400, 330)
         frame:Center()
         frame:ShowCloseButton(false)
         frame:MakePopup()
@@ -72,6 +72,18 @@ if CLIENT then
             SendWeaponSelection(weaponSelection)
             frame:Hide()
             JDM.Client.Weapons.IsOpen = false
+        end
+
+        if LocalPlayer():IsAdmin() then
+            local adminButton = vgui.Create("DButton", frame)
+            adminButton:SetText("Admin: edit weapons config (F3)")
+            adminButton:Dock(BOTTOM)
+            adminButton:DockMargin(0, 0, 0, 4)
+            adminButton.DoClick = function()
+                frame:Hide()
+                JDM.Client.Weapons.IsOpen = false
+                JDM.Client.Admin.RequestEditor()
+            end
         end
     end
     

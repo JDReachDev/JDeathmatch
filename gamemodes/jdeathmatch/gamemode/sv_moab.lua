@@ -35,8 +35,11 @@ if SERVER then
         end
         
         -- Give weapon to player
-        ply:Give(weapon.id)
-        
+        local wep = ply:Give(weapon.id)
+        if IsValid(wep) then
+            wep:SetNWInt("JDM_Slot", 5) -- "Extra" group in the weapon selector
+        end
+
         -- Notify all players
         local message = ply:Nick() .. " has become an Annihilator with " .. weapon.name .. "."
         PrintMessage(HUD_PRINTCENTER, message)

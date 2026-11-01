@@ -17,6 +17,7 @@
 [*] [b]Slow-motion finale[/b]: the winning kill slows down time, then everyone spectates the winner.
 [*] [b]Map vote[/b] at the end of every match ([i]dm_[/i] and [i]ttt_[/i] maps).
 [*] [b]Scoreboard[/b] (hold [b]Tab[/b]) with kills, deaths, K/D, MOAB status and progress to win.
+[*] [b]Custom HUD[/b]: health, armor, ammo and kills to win, plus a weapon selector grouped by loadout slot.
 [*] Works with [b]bots[/b], perfect for testing your setup.
 [/list]
 
@@ -25,6 +26,8 @@
 [tr][th]Key[/th][th]Action[/th][/tr]
 [tr][td]Q[/td][td]Open / close the loadout menu[/td][/tr]
 [tr][td]Tab[/td][td]Scoreboard[/td][/tr]
+[tr][td]Wheel / 1-5[/td][td]Switch weapon, grouped by loadout slot[/td][/tr]
+[tr][td]F3[/td][td]Weapons editor (admins only)[/td][/tr]
 [tr][td]F[/td][td]Flashlight (if enabled)[/td][/tr]
 [/table]
 
@@ -52,6 +55,7 @@ The weapon list lives in [b]garrysmod/data/jdmw.txt[/b] and is created with HL2 
 [*] [b]dmgmul[/b]: damage multiplier (1 = normal, 0.5 = half, 2 = double)
 [/list]
 After editing, run [b]jdm_reloadWeaponsConfig[/b] from the server console (or as admin) to apply it without restarting.
+Or skip the file: admins can press [b]F3[/b] in game to edit damage, ammo and slots, and add or remove weapons from a searchable list of installed ones.
 Full guide: [url=https://github.com/JDReachDev/JDeathmatch]GitHub[/url]
 
 [h2]Example setup[/h2]

@@ -71,17 +71,13 @@ if CLIENT then
         -- Scroll panel for player list
         local scrollPanel = vgui.Create("DScrollPanel", frame)
         scrollPanel:SetPos(10, 120)
-        scrollPanel:SetSize(panelWidth - 20, panelHeight - 120)
-        
-        -- Player list
-        local playerList = vgui.Create("DListLayout", scrollPanel)
-        playerList:SetSize(panelWidth - 40, 0)
-        playerList:Dock(FILL)
-        
-        -- Store references
+        scrollPanel:SetSize(panelWidth - 20, panelHeight - 130)
+
+        -- Rows go straight into the scroll panel: its canvas grows with them, so it scrolls
+        -- (a DListLayout docked to FILL stayed as tall as the view and cut off the extra players)
         JDM.Client.Scoreboard.Panel = frame
         JDM.Client.Scoreboard.ScrollPanel = scrollPanel
-        JDM.Client.Scoreboard.PlayerList = playerList
+        JDM.Client.Scoreboard.PlayerList = scrollPanel
         
         return frame
     end
@@ -95,7 +91,10 @@ if CLIENT then
         local playerList = JDM.Client.Scoreboard.PlayerList
         if !IsValid(playerList) then return end
         
-        -- Clear existing entries
+        -- Clear existing entries (hidden first: Remove only happens next frame, so old rows would still take space)
+        for _, child in ipairs(playerList:GetCanvas():GetChildren()) do
+            child:SetVisible(false)
+        end
         playerList:Clear()
         
         -- Get all players and filter out invalid ones

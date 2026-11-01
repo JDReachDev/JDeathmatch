@@ -56,8 +56,8 @@ if CLIENT then
                 cx = cx + killerW + pad
             end
 
-            draw.RoundedBox(3, cx, y + gap, weaponW, rowH - gap * 2, Color(0, 0, 0, 120))
-            draw.SimpleText(weaponText, "JDM_HUD_Small", cx + pad, cy, e.headshot and colors.Gold or colors.Accent, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+            draw.RoundedBox(3, cx, y + gap, weaponW, rowH - gap * 2, Color(15, 15, 15, 210))
+            draw.SimpleText(weaponText, "JDM_HUD_Small", cx + pad, cy, e.headshot and colors.Gold or Color(255, 95, 95), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
             cx = cx + weaponW + pad
 
             draw.SimpleText(e.victimName, "JDM_HUD_Small", cx, cy, e.victim == me and colors.Gold or colors.TextDim, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)

@@ -8,6 +8,14 @@
 - an end-of-match map vote (`dm_` and `ttt_` maps)
 - a custom scoreboard
 
+## Screenshots
+
+| | |
+|---|---|
+| ![HUD](docs/screenshots/hud.jpg) | ![Weapon selector](docs/screenshots/weapon-selector.jpg) |
+| ![Kill feed](docs/screenshots/killfeed.jpg) | ![Low health](docs/screenshots/low-health.jpg) |
+| ![Minigun](docs/screenshots/minigun.jpg) | ![Dam](docs/screenshots/dam.jpg) |
+
 ## Repository layout
 
 The repository is a standard Garry's Mod addon:
@@ -20,12 +28,13 @@ gamemodes/jdeathmatch/
     gamemode/                   # Lua code (cl_* client, sv_* server, sh_* shared)
 sound/                          # MOAB and victory sounds
 examples/jdmw.txt               # example weapons config (not packed into the Workshop addon)
+docs/screenshots/               # in-game screenshots (not packed)
 publish/                        # Workshop publishing tools (see publish/README.md)
 ```
 
 ## Download
 
-**Steam Workshop:** _coming soon_
+**Steam Workshop:** [JDeathmatch](https://steamcommunity.com/sharedfiles/filedetails/?id=3831901463)
 
 Subscribe on the Workshop, then pick **JDeathmatch** from the gamemode list in the main menu.
 

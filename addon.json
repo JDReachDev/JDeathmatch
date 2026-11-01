@@ -5,6 +5,7 @@
 	"ignore": [
 		"*.md",
 		"examples/*",
+		"docs/*",
 		"publish/*",
 		".git*",
 		"addon.json"

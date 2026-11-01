@@ -18,18 +18,8 @@ if SERVER then
             return
         end
         
-        -- Far spawn if enabled
-        if GetConVar("jdm_farspawn"):GetBool() then
-            local farthestSpawn = JDM.Spawn.GetFarthestSpawn(ply)
-            
-            if IsValid(farthestSpawn) then
-                ply:SetPos(farthestSpawn:GetPos())
-                ply:SetAngles(farthestSpawn:GetAngles())
-            else
-                print("[WARN] No valid spawn point found. Using default spawn.")
-            end
-        end
-        
+        -- Far spawn (jdm_farspawn) is handled in GM:PlayerSelectSpawn (sv_spawn.lua)
+
         -- Set player statistics
         local health = GetConVar("jdm_playerhealth"):GetInt()
         ply:SetMaxHealth(health)

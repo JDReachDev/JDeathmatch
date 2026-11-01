@@ -11,6 +11,8 @@ It is excluded from the `.gma` package (see `ignore` in `addon.json`).
 | `icon.jpg` | Workshop thumbnail. **Must be a 512x512 JPEG.** |
 | `workshop_description.txt` | Workshop description in Steam BBCode. **Edit it here, not on the website**: every upload overwrites the page. |
 | `workshop_id.txt` | Created after the first upload. Its presence makes the script *update* instead of *create*. |
+| `collection_id.txt`, `collection_title.txt`, `collection_description.txt` | The example collection ("Pure Chaos") linked from the addon page. |
+| `description.ps1` | Shared helpers (placeholders, length check) used by both scripts. |
 | `steamcmd/` | Valve's SteamCMD, downloaded automatically on first use. Ignored by git. |
 | `steam_user.txt` | Your Steam login name, saved on first use. Ignored by git. |
 | `out/` | Build output (`jdeathmatch.gma`, description preview), ignored by git. |
@@ -99,6 +101,20 @@ publish\publish.bat -GModPath "D:\SteamLibrary\steamapps\common\GarrysMod"
    `[h1]`, `[h2]`, `[b]`, `[i]`, `[list]`/`[*]`, `[table]`, `[url=...]`, `[code]`, `[img]`...).
 2. Double-click `preview_description.bat` to see it with a Workshop-like look and check the length (max 8000 characters).
 3. Run `publish.bat -DescriptionOnly` to push it without uploading a new version.
+
+### Example collection
+
+The addon page links to an example collection with the weapon packs and the config I play with.
+Its title and description live in `collection_title.txt` and `collection_description.txt`; the
+`{{JDMW_CONFIG}}` placeholder is replaced with [`../examples/jdmw.txt`](../examples/jdmw.txt) as compact JSON
+(one weapon per line, to stay under 8000 characters). So to share a new config, update `examples/jdmw.txt` and:
+
+```bat
+publish\preview_description.bat -Collection   :: check it
+publish\publish.bat -Collection               :: push title + description to the collection
+```
+
+Adding or removing the weapon packs in the collection is done on the collection page.
 
 ## 5. Finish on the Workshop page
 

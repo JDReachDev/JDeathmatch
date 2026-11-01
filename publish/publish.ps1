@@ -9,6 +9,7 @@
     .\publish.ps1 -Changes "New icon" -UpdateIcon
     .\publish.ps1 -DescriptionOnly
     .\publish.ps1 -DescriptionOnly -Visibility public
+    .\publish.ps1 -Collection
 #>
 param(
     # Changelog shown on the Workshop page (used when updating)
@@ -21,6 +22,8 @@ param(
     [switch]$DescriptionOnly,
     # Do not push the description after uploading the .gma
     [switch]$SkipDescription,
+    # Only push collection_title.txt + collection_description.txt to the example collection (collection_id.txt)
+    [switch]$Collection,
     # Also change visibility: public, friends, private, unlisted
     [ValidateSet("", "public", "friends", "private", "unlisted")]
     [string]$Visibility = "",
@@ -39,11 +42,15 @@ $GmaPath         = Join-Path $OutDir "jdeathmatch.gma"
 $IconPath        = Join-Path $PublishDir "icon.jpg"
 $IdFile          = Join-Path $PublishDir "workshop_id.txt"
 $DescriptionFile = Join-Path $PublishDir "workshop_description.txt"
+$CollectionIdFile          = Join-Path $PublishDir "collection_id.txt"
+$CollectionDescriptionFile = Join-Path $PublishDir "collection_description.txt"
+$CollectionTitleFile       = Join-Path $PublishDir "collection_title.txt"
 $SteamUserFile   = Join-Path $PublishDir "steam_user.txt"
 $SteamCmdDir     = Join-Path $PublishDir "steamcmd"
 $SteamCmd        = Join-Path $SteamCmdDir "steamcmd.exe"
 $GModAppId       = 4000
-$MaxDescription  = 8000 # Workshop limit
+
+. (Join-Path $PublishDir "description.ps1")
 
 function Find-GMod {
     if ($GModPath) { return $GModPath }
@@ -83,15 +90,6 @@ function Get-WorkshopId {
     return ""
 }
 
-function Read-Description {
-    if (!(Test-Path $DescriptionFile)) { throw "Missing $DescriptionFile." }
-    $text = (Get-Content $DescriptionFile -Raw -Encoding UTF8).Trim()
-    if ($text.Length -gt $MaxDescription) {
-        throw "workshop_description.txt is $($text.Length) characters, the Workshop limit is $MaxDescription."
-    }
-    return $text
-}
-
 # Run a native tool, show its output and return it as one string.
 # (With "Stop", PowerShell 5.1 would abort on the first line a tool writes to stderr.)
 function Invoke-Logged([string]$exe, [string[]]$arguments) {
@@ -119,9 +117,10 @@ function Install-SteamCmd {
     Remove-Item $zip
 }
 
-# Push title, description and visibility with SteamCMD (gmpublish cannot do it)
-function Update-WorkshopMetadata([string]$workshopId, [string]$title) {
+# Push title (optional), description and visibility with SteamCMD (gmpublish cannot do it)
+function Update-WorkshopMetadata([string]$workshopId, [string]$title, [string]$descriptionPath) {
     if (!$workshopId) { throw "No Workshop ID: upload the addon first (publish.bat) or write the ID in publish\workshop_id.txt." }
+    $description = Read-Description $descriptionPath $RepoRoot
 
     $user = $SteamUser
     if (!$user -and (Test-Path $SteamUserFile)) { $user = (Get-Content $SteamUserFile -Raw).Trim() }
@@ -134,10 +133,10 @@ function Update-WorkshopMetadata([string]$workshopId, [string]$title) {
     $vdfLines = @(
         '"workshopitem"', '{',
         "    `"appid`" `"$GModAppId`"",
-        "    `"publishedfileid`" `"$workshopId`"",
-        "    `"title`" $(ConvertTo-VdfString $title)",
-        "    `"description`" $(ConvertTo-VdfString (Read-Description))"
+        "    `"publishedfileid`" `"$workshopId`""
     )
+    if ($title) { $vdfLines += "    `"title`" $(ConvertTo-VdfString $title)" }
+    $vdfLines += "    `"description`" $(ConvertTo-VdfString $description)"
     $visibilityCodes = @{ public = 0; friends = 1; private = 2; unlisted = 3 }
     if ($Visibility) { $vdfLines += "    `"visibility`" `"$($visibilityCodes[$Visibility])`"" }
     $vdfLines += '}'
@@ -152,7 +151,7 @@ function Update-WorkshopMetadata([string]$workshopId, [string]$title) {
     & $SteamCmd +login $user +quit
     if ($LASTEXITCODE -ne 0) { throw "SteamCMD login failed." }
 
-    Write-Host "Updating title and description..."
+    Write-Host "Updating Workshop item $workshopId..."
     $text = Invoke-Logged $SteamCmd @("+login", $user, "+workshop_build_item", $vdfPath, "+quit")
     if ($text -match 'ERROR!' -or $text -notmatch 'Success') { throw "SteamCMD failed to update the Workshop item (see output above)." }
     Write-Host "Description updated: https://steamcommunity.com/sharedfiles/filedetails/?id=$workshopId" -ForegroundColor Green
@@ -164,8 +163,15 @@ if (!$addon.title -or !$addon.type) { throw "addon.json needs 'title' and 'type'
 if (@($addon.tags).Count -gt 2) { throw "addon.json: Workshop allows at most 2 tags." }
 Write-Host "Addon: $($addon.title) [$($addon.type)] tags: $(@($addon.tags) -join ', ')"
 
+if ($Collection) {
+    if (!(Test-Path $CollectionIdFile)) { throw "Missing $CollectionIdFile (ID of the example collection)." }
+    $collectionTitle = if (Test-Path $CollectionTitleFile) { (Get-Content $CollectionTitleFile -Raw -Encoding UTF8).Trim() } else { "" }
+    Update-WorkshopMetadata (Get-Content $CollectionIdFile -Raw).Trim() $collectionTitle $CollectionDescriptionFile
+    return
+}
+
 if ($DescriptionOnly) {
-    Update-WorkshopMetadata (Get-WorkshopId) $addon.title
+    Update-WorkshopMetadata (Get-WorkshopId) $addon.title $DescriptionFile
     return
 }
 
@@ -175,7 +181,7 @@ $gmpublish  = Join-Path $gmod "bin\gmpublish.exe"
 Write-Host "Garry's Mod: $gmod"
 
 # Validate the description before uploading anything
-Read-Description | Out-Null
+Read-Description $DescriptionFile $RepoRoot | Out-Null
 
 # Build
 New-Item -ItemType Directory -Force $OutDir | Out-Null
@@ -219,5 +225,5 @@ if ($workshopId) {
 }
 
 if (!$SkipDescription) {
-    Update-WorkshopMetadata $workshopId $addon.title
+    Update-WorkshopMetadata $workshopId $addon.title $DescriptionFile
 }

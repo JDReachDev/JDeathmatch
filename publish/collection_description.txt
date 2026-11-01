@@ -1,0 +1,21 @@
+[h1]JDeathmatch: Pure Chaos[/h1]
+An example setup for [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3831901463]JDeathmatch[/url]: the weapon packs and the exact weapon config I play with. Circular saws, Quake 2 railguns, nerve gas and a killer Kleiner as MOAB rewards. Use it as is, or as a starting point for your own.
+
+[h2]How to use it[/h2]
+[list]
+[*] Click [b]Subscribe to all[/b] (on a dedicated server, use this collection with [b]+host_workshop_collection[/b] so players download everything).
+[*] Copy the config below into [b]garrysmod/data/jdmw.txt[/b] (replace the whole file).
+[*] Start a map with the [b]JDeathmatch[/b] gamemode, or run [b]jdm_reloadWeaponsConfig[/b] if a match is already running.
+[/list]
+
+[h2]What's inside[/h2]
+[list]
+[*] [b]M9K[/b] Small Arms, Assault Rifles, Heavy Weapons and Specialties: pistols, shotguns, rifles, grenades, mines, C4
+[*] [b]Serious Sam 2[/b], [b]Quake 2[/b] and [b]Sanctum 2[/b] SWEPs: over-the-top primaries and MOAB weapons
+[*] [b]Pirate Ship Wars 2[/b] and [b]Idiot Box[/b]: the silly stuff
+[*] [b]Hitmarkers[/b] and [b]Hit Numbers[/b]: hit feedback
+[/list]
+
+[h2]Weapon config (data/jdmw.txt)[/h2]
+Slots: 1 = primary, 2 = secondary, 3 = special, 666 = MOAB reward. The names are in-jokes, rename them as you like.
+[code]{{JDMW_CONFIG}}[/code]

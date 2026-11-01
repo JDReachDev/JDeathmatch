@@ -52,7 +52,10 @@ The weapon list lives in [b]garrysmod/data/jdmw.txt[/b] and is created with HL2 
 [*] [b]dmgmul[/b]: damage multiplier (1 = normal, 0.5 = half, 2 = double)
 [/list]
 After editing, run [b]jdm_reloadWeaponsConfig[/b] from the server console (or as admin) to apply it without restarting.
-Full guide and a ready-made M9K example: [url=https://github.com/JDReachDev/JDeathmatch]GitHub[/url]
+Full guide: [url=https://github.com/JDReachDev/JDeathmatch]GitHub[/url]
+
+[h2]Example setup[/h2]
+Not sure where to start? [url=https://steamcommunity.com/sharedfiles/filedetails/?id=838593733]JDeathmatch: Pure Chaos[/url] is the collection I play with: M9K, Serious Sam 2, Quake 2, Sanctum 2 and more, with the full [b]jdmw.txt[/b] ready to copy. Subscribe to all, paste the config, play.
 
 [h2]Dedicated servers[/h2]
 Add this addon (and the weapon packs you use) to your server's Workshop collection, so players download everything automatically, then start with [b]+gamemode jdeathmatch[/b].

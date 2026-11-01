@@ -8,6 +8,8 @@
     .\preview_description.ps1 -NoOpen
 #>
 param(
+    # Preview collection_description.txt (the example collection) instead of the addon page
+    [switch]$Collection,
     # Only write the HTML, do not open it
     [switch]$NoOpen
 )
@@ -16,16 +18,25 @@ $ErrorActionPreference = "Stop"
 
 $PublishDir      = $PSScriptRoot
 $RepoRoot        = Split-Path $PublishDir -Parent
-$DescriptionFile = Join-Path $PublishDir "workshop_description.txt"
 $IconPath        = Join-Path $PublishDir "icon.jpg"
 $OutDir          = Join-Path $PublishDir "out"
-$HtmlPath        = Join-Path $OutDir "description_preview.html"
-$MaxDescription  = 8000 # Workshop limit
 
+. (Join-Path $PublishDir "description.ps1")
 Add-Type -AssemblyName System.Web
 
-$bbcode = (Get-Content $DescriptionFile -Raw -Encoding UTF8).Trim()
-$title  = (Get-Content (Join-Path $RepoRoot "addon.json") -Raw | ConvertFrom-Json).title
+if ($Collection) {
+    $DescriptionFile = Join-Path $PublishDir "collection_description.txt"
+    $HtmlPath        = Join-Path $OutDir "collection_preview.html"
+    $title           = (Get-Content (Join-Path $PublishDir "collection_title.txt") -Raw -Encoding UTF8).Trim()
+} else {
+    $DescriptionFile = Join-Path $PublishDir "workshop_description.txt"
+    $HtmlPath        = Join-Path $OutDir "description_preview.html"
+    $title           = (Get-Content (Join-Path $RepoRoot "addon.json") -Raw | ConvertFrom-Json).title
+}
+
+# Fill placeholders ({{JDMW_CONFIG}}), they count towards the limit too
+$raw = (Get-Content $DescriptionFile -Raw -Encoding UTF8).Trim() -replace "`r", ''
+$bbcode = $raw.Replace('{{JDMW_CONFIG}}', (Get-CompactWeaponConfig (Join-Path $RepoRoot "examples\jdmw.txt")))
 
 # Escape HTML first, then turn BBCode tags into HTML
 $html = [System.Web.HttpUtility]::HtmlEncode($bbcode)
@@ -80,7 +91,7 @@ $page = @"
   .desc table { border-collapse: collapse; margin: 6px 0; max-width: 100%; display: block; overflow-x: auto; }
   .desc th, .desc td { border: 1px solid #4c5a69; padding: 4px 8px; text-align: left; }
   .desc th { color: #e5e5e5; }
-  .desc pre { background: #101822; padding: 8px; white-space: pre-wrap; }
+  .desc pre { background: #101822; padding: 8px; white-space: normal; font: 12px/1.4 Consolas, monospace; }
   .desc blockquote { border-left: 3px solid #4c5a69; margin: 6px 0; padding-left: 10px; }
   .desc .spoiler { background: #000; color: #000; } .desc .spoiler:hover { color: #acb2b8; }
   .desc img { max-width: 100%; }

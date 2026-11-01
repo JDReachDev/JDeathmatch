@@ -68,6 +68,7 @@ Or regenerate it with `make_icon.ps1` (blurred screenshot background, 3D crossha
 powershell -File publishmake_icon.ps1                                  # writes publishicon.jpg
 powershell -File publishmake_icon.ps1 -Background docsscreenshotsdam.jpg -RotateY 20 -Size 1.1
 ```
+
 The script checks the format before uploading.
 
 ## 3. Upload

@@ -48,7 +48,9 @@ You can set them in three ways:
 | `jdm_moabkills` | `25` | Kills needed to get the MOAB reward (once per player per map). |
 | `jdm_moabtimer` | `30` | How many seconds the MOAB weapon is kept before it is removed. |
 | `jdm_flashlight` | `1` | `1` = players can use the flashlight, `0` = disabled. |
-| `jdm_farspawn` | `0` | `1` = spawn players at the spawn point farthest from enemies.  |
+| `jdm_farspawn` | `0` | `1` = spawn players at the spawn point farthest from the nearest enemy. |
+| `jdm_slowmo` | `30` | Game speed (%) during the slow motion after the winning kill. |
+| `jdm_winmusic` | `music/hl2_song20_submix0.mp3` | Victory music (any sound path, `jdm_winsound.wav` = the classic one). |
 
 Example `server.cfg`:
 
@@ -64,6 +66,8 @@ jdm_moabkills 25
 jdm_moabtimer 30
 jdm_flashlight 1
 jdm_farspawn 0
+jdm_slowmo 30
+jdm_winmusic music/hl2_song20_submix0.mp3
 ```
 
 > Keep `jdm_moabkills` lower than `jdm_maxkills`, otherwise nobody will ever get the MOAB.
@@ -139,6 +143,10 @@ change name, slot, ammo and damage multiplier, add installed weapons (searchable
 and remove them. **Save and apply** validates the list, writes `data/jdmw.txt` (the previous one is kept
 as `data/jdmw_backup.txt`) and sends it to every player.
 
+The **Settings** tab of the same menu changes every `jdm_` ConVar live (health, speeds, gravity, kills,
+MOAB, flashlight, far spawn, slow motion, victory music with a preview button). Values are checked on the
+server and saved like any archived ConVar.
+
 ## Gameplay
 
 - On first join the player is a spectator until they save a loadout.
@@ -146,6 +154,7 @@ as `data/jdmw_backup.txt`) and sends it to every player.
 - Hold `Tab` for the scoreboard (kills, deaths, K/D, MOAB status, progress to win).
 - Mouse wheel and number keys pick weapons by loadout group: `1` primary, `2` secondary, `3`/`4` specials, `5` MOAB and extras.
 - The HUD shows health, armor, ammo (clip / reserve and alt-fire) and the kills needed to win, with the MOAB mark.
+- The kill feed (top right) shows `Killer [weapon] Victim` with the weapon names from the config, plus headshots.
 - At `jdm_moabkills` kills the player becomes the **Annihilator** and gets a random MOAB weapon for `jdm_moabtimer` seconds.
 - At `jdm_maxkills` kills the match ends: slow motion, everyone spectates the winner, then a map vote opens.
 - The map vote lists every installed map starting with `dm_` or `ttt_`. If nobody votes, a random one is chosen.
@@ -155,7 +164,7 @@ as `data/jdmw_backup.txt`) and sends it to every player.
 | Command | Who | Description |
 |---|---|---|
 | `jdm_reloadWeaponsConfig` | admin / server console | Reload `data/jdmw.txt` and push it to clients. |
-| `jdm_admin` (or `F3`) | admin | Open the in-game weapons editor. |
+| `jdm_admin` (or `F3`) | admin | Open the admin menu (weapons editor and settings). |
 
 ## Troubleshooting
 

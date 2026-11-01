@@ -79,5 +79,21 @@
             "type"      "CheckBox"
             "default"   "0"
         }
+		10
+        {
+            "name"      "jdm_slowmo"
+            "text"      "Slow motion speed (%)"
+            "help"      "Game speed during the winning slow motion"
+            "type"      "Numeric"
+            "default"   "30"
+        }
+		11
+        {
+            "name"      "jdm_winmusic"
+            "text"      "Victory music"
+            "help"      "Sound path played when someone wins"
+            "type"      "Text"
+            "default"   "music/hl2_song20_submix0.mp3"
+        }
 	}
 }

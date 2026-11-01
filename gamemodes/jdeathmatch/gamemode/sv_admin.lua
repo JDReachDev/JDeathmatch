@@ -102,6 +102,39 @@ if SERVER then
         PrintMessage(HUD_PRINTTALK, "[JDM] " .. ply:Nick() .. " updated the weapons config. Changes apply on your next spawn.")
     end)
 
+    -- Settings tab: only JDM ConVars, numbers clamped to their range
+    net.Receive("JDM_AdminSetConVars", function(len, ply)
+        if !IsValid(ply) or !ply:IsAdmin() then return end
+
+        local changed = net.ReadTable()
+        local applied = {}
+
+        for _, cvar in ipairs(JDM.ConVars) do
+            local value = changed[cvar.name]
+            if !isstring(value) then continue end
+
+            if cvar.type == "number" then
+                local number = tonumber(value)
+                if !number then continue end
+                value = tostring(math.Clamp(math.floor(number), cvar.min, cvar.max))
+            elseif cvar.type == "bool" then
+                value = tobool(value) and "1" or "0"
+            elseif cvar.type == "music" then
+                -- A sound path, nothing that could run commands
+                value = string.Trim(value)
+                if #value > 128 or !string.match(value, "^[%w_%-%./]*$") then continue end
+            end
+
+            RunConsoleCommand(cvar.name, value)
+            table.insert(applied, cvar.name .. " = " .. value)
+        end
+
+        if #applied > 0 then
+            print("[INFO] " .. ply:Nick() .. " changed settings: " .. table.concat(applied, ", "))
+            PrintMessage(HUD_PRINTTALK, "[JDM] " .. ply:Nick() .. " changed: " .. table.concat(applied, ", "))
+        end
+    end)
+
     -- F3 (gm_showspare1) opens the editor
     function GM:ShowSpare1(ply)
         if ply:IsAdmin() then

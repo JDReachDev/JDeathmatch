@@ -14,6 +14,16 @@ JDM.Config.WeaponSlotLabels = {
     [4] = "Specials",
 }
 
+-- Victory music choices in the admin settings menu (any other sound path works too)
+JDM.Config.WinMusic = {
+    { "music/hl2_song20_submix0.mp3", "Half-Life 2 - CP Violation" },
+    { "music/hl2_song23_suitsong3.mp3", "Half-Life 2 - Triage at Dawn" },
+    { "music/hl2_song4.mp3", "Half-Life 2 - hl2_song4" },
+    { "music/hl2_song29.mp3", "Half-Life 2 - hl2_song29" },
+    { "music/hl2_song3.mp3", "Half-Life 2 - hl2_song3" },
+    { "jdm_winsound.wav", "JDeathmatch classic" },
+}
+
 -- Special slot for MOAB weapons
 JDM.Config.MOABSlot = 666
 

@@ -8,9 +8,9 @@ if SERVER then
     -- Track if slow motion is active
     JDM.Round.SlowMotionActive = false
     JDM.Round.SlowMotionStartTime = 0
-    JDM.Round.SlowMotionDuration = 5 -- 5 seconds of slow motion
+    JDM.Round.SlowMotionDuration = 8 -- real seconds of slow motion
 
-    -- Start slow motion (50% speed for 5 seconds)
+    -- Start slow motion (jdm_slowmo % speed, 30% by default)
     function JDM.Round.StartSlowMotion(winner)
         if !IsValid(winner) then return end
         if JDM.Round.IsEnding then return end
@@ -27,10 +27,11 @@ if SERVER then
         -- Slow down everything: movement, animations, physics, etc.
         -- (host_timescale would need sv_cheats, game.SetTimeScale does not)
         -- Player speeds are left untouched, halving them too would give 25%.
-        game.SetTimeScale(0.5)
+        local scale = math.Clamp(GetConVar("jdm_slowmo"):GetFloat(), 5, 100) / 100
+        game.SetTimeScale(scale)
 
-        -- After 5 game seconds, end slow motion and show freeze frame
-        timer.Create("JDM_Round_EndSlowMotion", 5, 1, function()
+        -- Timers run on game time: the slow motion lasts SlowMotionDuration real seconds at any speed
+        timer.Create("JDM_Round_EndSlowMotion", JDM.Round.SlowMotionDuration * scale, 1, function()
             JDM.Round.EndSlowMotionAndFreeze(winner)
         end)
     end

@@ -30,7 +30,9 @@ if CLIENT then
     
     -- Play victory sound
     function JDM.Client.Sounds.PlayVictory()
-        local soundPath = JDM.Client.Sounds.VictorySoundPath
+        -- jdm_winmusic (replicated from the server), the classic sound if it is empty
+        local soundPath = GetConVar("jdm_winmusic"):GetString()
+        if soundPath == "" then soundPath = JDM.Client.Sounds.VictorySoundPath end
 
         -- Check if sound exists
         local fullPath = "sound/" .. soundPath

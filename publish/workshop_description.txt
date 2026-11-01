@@ -17,7 +17,7 @@
 [*] [b]Slow-motion finale[/b]: the winning kill slows down time, then everyone spectates the winner.
 [*] [b]Map vote[/b] at the end of every match ([i]dm_[/i] and [i]ttt_[/i] maps).
 [*] [b]Scoreboard[/b] (hold [b]Tab[/b]) with kills, deaths, K/D, MOAB status and progress to win.
-[*] [b]Custom HUD[/b]: health, armor, ammo and kills to win, plus a weapon selector grouped by loadout slot.
+[*] [b]Custom HUD[/b]: health, armor, ammo and kills to win, a weapon selector grouped by loadout slot and a kill feed with your weapon names (and headshots).
 [*] Works with [b]bots[/b], perfect for testing your setup.
 [/list]
 
@@ -27,7 +27,7 @@
 [tr][td]Q[/td][td]Open / close the loadout menu[/td][/tr]
 [tr][td]Tab[/td][td]Scoreboard[/td][/tr]
 [tr][td]Wheel / 1-5[/td][td]Switch weapon, grouped by loadout slot[/td][/tr]
-[tr][td]F3[/td][td]Weapons editor (admins only)[/td][/tr]
+[tr][td]F3[/td][td]Admin menu: weapons and settings[/td][/tr]
 [tr][td]F[/td][td]Flashlight (if enabled)[/td][/tr]
 [/table]
 
@@ -44,6 +44,8 @@ Set them in the [b]Start New Game[/b] menu, in [i]server.cfg[/i] or live from th
 [tr][td]jdm_moabtimer[/td][td]30[/td][td]MOAB duration in seconds[/td][/tr]
 [tr][td]jdm_flashlight[/td][td]1[/td][td]Allow the flashlight[/td][/tr]
 [tr][td]jdm_farspawn[/td][td]0[/td][td]Spawn far from enemies[/td][/tr]
+[tr][td]jdm_slowmo[/td][td]30[/td][td]Game speed (%) in the winning slow motion[/td][/tr]
+[tr][td]jdm_winmusic[/td][td]CP Violation[/td][td]Victory music, any sound path[/td][/tr]
 [/table]
 
 [h2]Custom weapons[/h2]
@@ -55,7 +57,7 @@ The weapon list lives in [b]garrysmod/data/jdmw.txt[/b] and is created with HL2 
 [*] [b]dmgmul[/b]: damage multiplier (1 = normal, 0.5 = half, 2 = double)
 [/list]
 After editing, run [b]jdm_reloadWeaponsConfig[/b] from the server console (or as admin) to apply it without restarting.
-Or skip the file: admins can press [b]F3[/b] in game to edit damage, ammo and slots, and add or remove weapons from a searchable list of installed ones.
+Or skip the file: admins can press [b]F3[/b] in game to edit damage, ammo and slots, and add or remove weapons from a searchable list of installed ones. The Settings tab changes every ConVar above live.
 Full guide: [url=https://github.com/JDReachDev/JDeathmatch]GitHub[/url]
 
 [h2]Example setup[/h2]

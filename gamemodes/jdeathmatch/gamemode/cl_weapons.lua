@@ -76,7 +76,7 @@ if CLIENT then
 
         if LocalPlayer():IsAdmin() then
             local adminButton = vgui.Create("DButton", frame)
-            adminButton:SetText("Admin: edit weapons config (F3)")
+            adminButton:SetText("Admin menu: weapons and settings (F3)")
             adminButton:Dock(BOTTOM)
             adminButton:DockMargin(0, 0, 0, 4)
             adminButton.DoClick = function()

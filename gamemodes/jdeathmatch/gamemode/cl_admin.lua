@@ -132,15 +132,111 @@ if CLIENT then
         end
     end
 
+    -- Settings tab: every JDM ConVar (sh_convars.lua), sent to the server with "Apply"
+    function Admin.BuildSettings(parent)
+        local scroll = vgui.Create("DScrollPanel", parent)
+        scroll:Dock(FILL)
+
+        local values = {}
+
+        for _, cvar in ipairs(JDM.ConVars) do
+            local current = GetConVar(cvar.name):GetString()
+            values[cvar.name] = current
+
+            local row = vgui.Create("DPanel", scroll)
+            row:Dock(TOP)
+            row:SetTall(34)
+            row:DockMargin(0, 0, 0, 4)
+            row:DockPadding(10, 5, 10, 5)
+            row.Paint = function(self, w, h) draw.RoundedBox(4, 0, 0, w, h, Color(30, 30, 30)) end
+
+            local label = vgui.Create("DLabel", row)
+            label:Dock(LEFT)
+            label:SetWide(330)
+            label:SetText(cvar.help .. "   (" .. cvar.name .. ", default " .. cvar.default .. ")")
+            label:SetTextColor(Color(220, 220, 220))
+
+            if cvar.type == "bool" then
+                local check = vgui.Create("DCheckBox", row)
+                check:Dock(LEFT)
+                check:DockMargin(0, 4, 0, 4)
+                check:SetWide(16)
+                check:SetChecked(tobool(current))
+                check.OnChange = function(_, checked) values[cvar.name] = checked and "1" or "0" end
+
+            elseif cvar.type == "number" then
+                local wang = vgui.Create("DNumberWang", row)
+                wang:Dock(LEFT)
+                wang:SetWide(100)
+                wang:SetMinMax(cvar.min, cvar.max)
+                wang:SetDecimals(0)
+                wang:SetValue(tonumber(current) or tonumber(cvar.default))
+                wang.OnValueChanged = function(_, value) values[cvar.name] = tostring(math.floor(tonumber(value) or 0)) end
+
+            elseif cvar.type == "music" then
+                local entry
+                local box = vgui.Create("DComboBox", row)
+                box:Dock(LEFT)
+                box:SetWide(230)
+                box:SetValue("Pick a track...")
+                for _, track in ipairs(JDM.Config.WinMusic) do
+                    box:AddChoice(track[2], track[1], track[1] == current)
+                end
+                box.OnSelect = function(_, _, _, path) entry:SetValue(path) values[cvar.name] = path end
+
+                local play = vgui.Create("DButton", row)
+                play:Dock(RIGHT)
+                play:SetWide(60)
+                play:SetText("Play")
+                play.DoClick = function() RunConsoleCommand("stopsound") timer.Simple(0.1, function() surface.PlaySound(values[cvar.name]) end) end
+
+                entry = vgui.Create("DTextEntry", row)
+                entry:Dock(FILL)
+                entry:DockMargin(6, 0, 6, 0)
+                entry:SetValue(current)
+                entry.OnChange = function(self) values[cvar.name] = string.Trim(self:GetValue()) end
+            end
+        end
+
+        local apply = vgui.Create("DButton", parent)
+        apply:Dock(BOTTOM)
+        apply:DockMargin(0, 6, 0, 0)
+        apply:SetTall(30)
+        apply:SetText("Apply settings on the server")
+        apply.DoClick = function()
+            local changed = {}
+            for name, value in pairs(values) do
+                if value != GetConVar(name):GetString() then changed[name] = value end
+            end
+            if table.IsEmpty(changed) then return end
+
+            net.Start("JDM_AdminSetConVars")
+            net.WriteTable(changed)
+            net.SendToServer()
+        end
+    end
+
     function Admin.OpenEditor(weaponList)
         if IsValid(Admin.Frame) then Admin.Frame:Remove() end
 
         local working = table.Copy(weaponList)
-        local frame = DarkFrame("JDeathmatch - Weapons config (admin)", math.min(980, ScrW() - 40), math.min(620, ScrH() - 40))
+        local frame = DarkFrame("JDeathmatch - Admin", math.min(980, ScrW() - 40), math.min(620, ScrH() - 40))
         Admin.Frame = frame
 
+        local sheet = vgui.Create("DPropertySheet", frame)
+        sheet:Dock(FILL)
+
+        local weaponsPanel = vgui.Create("DPanel", sheet)
+        weaponsPanel:SetPaintBackground(false)
+        sheet:AddSheet("Weapons", weaponsPanel, "icon16/gun.png")
+
+        local settingsPanel = vgui.Create("DPanel", sheet)
+        settingsPanel:SetPaintBackground(false)
+        sheet:AddSheet("Settings", settingsPanel, "icon16/cog.png")
+        Admin.BuildSettings(settingsPanel)
+
         -- Right: fields of the selected weapon
-        local side = vgui.Create("DPanel", frame)
+        local side = vgui.Create("DPanel", weaponsPanel)
         side:Dock(RIGHT)
         side:SetWide(300)
         side:DockMargin(8, 0, 0, 0)
@@ -148,7 +244,7 @@ if CLIENT then
         side.Paint = function(self, w, h) draw.RoundedBox(4, 0, 0, w, h, Color(30, 30, 30)) end
 
         -- Left: the list
-        local list = vgui.Create("DListView", frame)
+        local list = vgui.Create("DListView", weaponsPanel)
         list:Dock(FILL)
         list:SetMultiSelect(false)
         list:AddColumn("Name"):SetWidth(170)

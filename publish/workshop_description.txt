@@ -74,3 +74,6 @@ Add this addon (and the weapon packs you use) to your server's Workshop collecti
 
 [h2]Bugs & suggestions[/h2]
 Leave a comment below or open an issue on [url=https://github.com/JDReachDev/JDeathmatch/issues]GitHub[/url].
+
+[h2]Support[/h2]
+Enjoying JDeathmatch? You can buy me a coffee on [url=https://ko-fi.com/jdreach]Ko-fi[/url]. Thanks!

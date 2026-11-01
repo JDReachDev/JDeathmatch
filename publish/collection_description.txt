@@ -19,3 +19,7 @@ An example setup for [url=https://steamcommunity.com/sharedfiles/filedetails/?id
 [h2]Weapon config (data/jdmw.txt)[/h2]
 Slots: 1 = primary, 2 = secondary, 3 = special, 666 = MOAB reward. The names are in-jokes, rename them as you like.
 [code]{{JDMW_CONFIG}}[/code]
+
+
+[h2]Support[/h2]
+Enjoying the setup? You can support JDeathmatch on [url=https://ko-fi.com/jdreach]Ko-fi[/url].

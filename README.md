@@ -1,5 +1,7 @@
 # JDeathmatch (Garry's Mod)
 
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-support%20me-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/jdreach)
+
 `JDeathmatch` is a customizable free-for-all deathmatch gamemode for Garry's Mod featuring:
 
 - a loadout menu with weapons defined in a JSON file
@@ -191,6 +193,11 @@ server and saved like any archived ConVar.
 
 - Designed for pure free-for-all deathmatch.
 - Other addons that change spawning, loadouts or `PlayerSpawn` may interfere.
+
+## Support
+
+If you enjoy JDeathmatch, you can support it on Ko-fi:
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-support%20me-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/jdreach)
 
 ## Credits
 

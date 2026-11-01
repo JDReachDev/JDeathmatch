@@ -1,11 +1,14 @@
 <#
 .SYNOPSIS
-    Builds JDeathmatch into a .gma and publishes / updates it on the Steam Workshop.
+    Builds JDeathmatch into a .gma and publishes / updates it on the Steam Workshop,
+    including title, description and visibility.
 
 .EXAMPLE
     .\publish.ps1 -BuildOnly
     .\publish.ps1 -Changes "Fixed MOAB timer"
     .\publish.ps1 -Changes "New icon" -UpdateIcon
+    .\publish.ps1 -DescriptionOnly
+    .\publish.ps1 -DescriptionOnly -Visibility public
 #>
 param(
     # Changelog shown on the Workshop page (used when updating)
@@ -14,18 +17,33 @@ param(
     [switch]$BuildOnly,
     # Also replace the Workshop icon when updating
     [switch]$UpdateIcon,
+    # Only push title + description (and visibility) from workshop_description.txt, no build/upload
+    [switch]$DescriptionOnly,
+    # Do not push the description after uploading the .gma
+    [switch]$SkipDescription,
+    # Also change visibility: public, friends, private, unlisted
+    [ValidateSet("", "public", "friends", "private", "unlisted")]
+    [string]$Visibility = "",
+    # Steam account name for SteamCMD (saved in steam_user.txt, which is not committed)
+    [string]$SteamUser = "",
     # Garry's Mod install folder (auto-detected from Steam if omitted)
     [string]$GModPath = ""
 )
 
 $ErrorActionPreference = "Stop"
 
-$PublishDir = $PSScriptRoot
-$RepoRoot   = Split-Path $PublishDir -Parent
-$OutDir     = Join-Path $PublishDir "out"
-$GmaPath    = Join-Path $OutDir "jdeathmatch.gma"
-$IconPath   = Join-Path $PublishDir "icon.jpg"
-$IdFile     = Join-Path $PublishDir "workshop_id.txt"
+$PublishDir      = $PSScriptRoot
+$RepoRoot        = Split-Path $PublishDir -Parent
+$OutDir          = Join-Path $PublishDir "out"
+$GmaPath         = Join-Path $OutDir "jdeathmatch.gma"
+$IconPath        = Join-Path $PublishDir "icon.jpg"
+$IdFile          = Join-Path $PublishDir "workshop_id.txt"
+$DescriptionFile = Join-Path $PublishDir "workshop_description.txt"
+$SteamUserFile   = Join-Path $PublishDir "steam_user.txt"
+$SteamCmdDir     = Join-Path $PublishDir "steamcmd"
+$SteamCmd        = Join-Path $SteamCmdDir "steamcmd.exe"
+$GModAppId       = 4000
+$MaxDescription  = 8000 # Workshop limit
 
 function Find-GMod {
     if ($GModPath) { return $GModPath }
@@ -60,10 +78,85 @@ function Test-Icon {
     } finally { $img.Dispose() }
 }
 
-$gmod       = Find-GMod
-$gmad       = Join-Path $gmod "bin\gmad.exe"
-$gmpublish  = Join-Path $gmod "bin\gmpublish.exe"
-Write-Host "Garry's Mod: $gmod"
+function Get-WorkshopId {
+    if (Test-Path $IdFile) { return (Get-Content $IdFile -Raw).Trim() }
+    return ""
+}
+
+function Read-Description {
+    if (!(Test-Path $DescriptionFile)) { throw "Missing $DescriptionFile." }
+    $text = (Get-Content $DescriptionFile -Raw -Encoding UTF8).Trim()
+    if ($text.Length -gt $MaxDescription) {
+        throw "workshop_description.txt is $($text.Length) characters, the Workshop limit is $MaxDescription."
+    }
+    return $text
+}
+
+# Run a native tool, show its output and return it as one string.
+# (With "Stop", PowerShell 5.1 would abort on the first line a tool writes to stderr.)
+function Invoke-Logged([string]$exe, [string[]]$arguments) {
+    $previous = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        & $exe @arguments 2>&1 | ForEach-Object { "$_" } | Tee-Object -Variable lines | Out-Host
+        $script:LastToolExitCode = $LASTEXITCODE
+    } finally { $ErrorActionPreference = $previous }
+    return ($lines -join "`n")
+}
+
+# Escape a string for a quoted VDF (KeyValues) value
+function ConvertTo-VdfString([string]$value) {
+    return '"' + ($value -replace '\\', '\\' -replace '"', '\"') + '"'
+}
+
+function Install-SteamCmd {
+    if (Test-Path $SteamCmd) { return }
+    Write-Host "Downloading SteamCMD from Valve..."
+    New-Item -ItemType Directory -Force $SteamCmdDir | Out-Null
+    $zip = Join-Path $env:TEMP "steamcmd_$(Get-Random).zip"
+    Invoke-WebRequest "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip" -OutFile $zip -UseBasicParsing
+    Expand-Archive $zip -DestinationPath $SteamCmdDir -Force
+    Remove-Item $zip
+}
+
+# Push title, description and visibility with SteamCMD (gmpublish cannot do it)
+function Update-WorkshopMetadata([string]$workshopId, [string]$title) {
+    if (!$workshopId) { throw "No Workshop ID: upload the addon first (publish.bat) or write the ID in publish\workshop_id.txt." }
+
+    $user = $SteamUser
+    if (!$user -and (Test-Path $SteamUserFile)) { $user = (Get-Content $SteamUserFile -Raw).Trim() }
+    if (!$user) { $user = Read-Host "Steam account name (login name, not the profile name)" }
+    if (!$user) { throw "A Steam account name is required." }
+    $user | Set-Content $SteamUserFile -NoNewline
+
+    Install-SteamCmd
+
+    $vdfLines = @(
+        '"workshopitem"', '{',
+        "    `"appid`" `"$GModAppId`"",
+        "    `"publishedfileid`" `"$workshopId`"",
+        "    `"title`" $(ConvertTo-VdfString $title)",
+        "    `"description`" $(ConvertTo-VdfString (Read-Description))"
+    )
+    $visibilityCodes = @{ public = 0; friends = 1; private = 2; unlisted = 3 }
+    if ($Visibility) { $vdfLines += "    `"visibility`" `"$($visibilityCodes[$Visibility])`"" }
+    $vdfLines += '}'
+
+    # No "contentfolder": SteamCMD only updates the metadata, the .gma uploaded by gmpublish stays
+    New-Item -ItemType Directory -Force $OutDir | Out-Null
+    $vdfPath = Join-Path $OutDir "workshop_item.vdf"
+    [System.IO.File]::WriteAllText($vdfPath, ($vdfLines -join "`r`n"), (New-Object System.Text.UTF8Encoding($false)))
+
+    # First login is interactive (password + Steam Guard typed by you in SteamCMD), then it is cached
+    Write-Host "Logging in to SteamCMD as '$user' (type password / Steam Guard code if asked)..."
+    & $SteamCmd +login $user +quit
+    if ($LASTEXITCODE -ne 0) { throw "SteamCMD login failed." }
+
+    Write-Host "Updating title and description..."
+    $text = Invoke-Logged $SteamCmd @("+login", $user, "+workshop_build_item", $vdfPath, "+quit")
+    if ($text -match 'ERROR!' -or $text -notmatch 'Success') { throw "SteamCMD failed to update the Workshop item (see output above)." }
+    Write-Host "Description updated: https://steamcommunity.com/sharedfiles/filedetails/?id=$workshopId" -ForegroundColor Green
+}
 
 # addon.json sanity check (title, type, tags)
 $addon = Get-Content (Join-Path $RepoRoot "addon.json") -Raw | ConvertFrom-Json
@@ -71,11 +164,24 @@ if (!$addon.title -or !$addon.type) { throw "addon.json needs 'title' and 'type'
 if (@($addon.tags).Count -gt 2) { throw "addon.json: Workshop allows at most 2 tags." }
 Write-Host "Addon: $($addon.title) [$($addon.type)] tags: $(@($addon.tags) -join ', ')"
 
+if ($DescriptionOnly) {
+    Update-WorkshopMetadata (Get-WorkshopId) $addon.title
+    return
+}
+
+$gmod       = Find-GMod
+$gmad       = Join-Path $gmod "bin\gmad.exe"
+$gmpublish  = Join-Path $gmod "bin\gmpublish.exe"
+Write-Host "Garry's Mod: $gmod"
+
+# Validate the description before uploading anything
+Read-Description | Out-Null
+
 # Build
 New-Item -ItemType Directory -Force $OutDir | Out-Null
 if (Test-Path $GmaPath) { Remove-Item $GmaPath }
-& $gmad create -folder $RepoRoot -out $GmaPath
-if ($LASTEXITCODE -ne 0 -or !(Test-Path $GmaPath)) { throw "gmad failed." }
+Invoke-Logged $gmad @("create", "-folder", $RepoRoot, "-out", $GmaPath) | Out-Null
+if ($script:LastToolExitCode -ne 0 -or !(Test-Path $GmaPath)) { throw "gmad failed." }
 Write-Host "Built: $GmaPath" -ForegroundColor Green
 
 if ($BuildOnly) { return }
@@ -83,28 +189,34 @@ if ($BuildOnly) { return }
 Test-Icon
 Write-Host "Steam must be running and logged in with the account that owns the addon."
 
-$workshopId = if (Test-Path $IdFile) { (Get-Content $IdFile -Raw).Trim() } else { "" }
+$workshopId = Get-WorkshopId
 
 if ($workshopId) {
     # Update existing Workshop item
     if (!$Changes) { $Changes = Read-Host "Changelog for this update" }
     $publishArgs = @("update", "-addon", $GmaPath, "-id", $workshopId, "-changes", $Changes)
     if ($UpdateIcon) { $publishArgs += @("-icon", $IconPath) }
-    & $gmpublish @publishArgs
-    if ($LASTEXITCODE -ne 0) { throw "gmpublish update failed." }
+    Invoke-Logged $gmpublish $publishArgs | Out-Null
+    if ($script:LastToolExitCode -ne 0) { throw "gmpublish update failed." }
     Write-Host "Updated: https://steamcommunity.com/sharedfiles/filedetails/?id=$workshopId" -ForegroundColor Green
 } else {
     # First upload: create the Workshop item and remember its ID
-    $output = & $gmpublish create -addon $GmaPath -icon $IconPath 2>&1 | Tee-Object -Variable log
-    if ($LASTEXITCODE -ne 0) { throw "gmpublish create failed." }
+    $log = Invoke-Logged $gmpublish @("create", "-addon", $GmaPath, "-icon", $IconPath)
+    if ($script:LastToolExitCode -ne 0) { throw "gmpublish create failed." }
 
-    $match = [regex]::Match(($log -join "`n"), '(?:UID|id)\D{0,5}(\d{6,})', 'IgnoreCase')
+    $match = [regex]::Match($log, '(?:UID|id)\D{0,5}(\d{6,})', 'IgnoreCase')
     if ($match.Success) {
-        $match.Groups[1].Value | Set-Content $IdFile -NoNewline
-        Write-Host "Created: https://steamcommunity.com/sharedfiles/filedetails/?id=$($match.Groups[1].Value)" -ForegroundColor Green
+        $workshopId = $match.Groups[1].Value
+        $workshopId | Set-Content $IdFile -NoNewline
+        Write-Host "Created: https://steamcommunity.com/sharedfiles/filedetails/?id=$workshopId" -ForegroundColor Green
         Write-Host "Saved the ID to publish\workshop_id.txt - commit it so future runs update instead of creating."
     } else {
-        Write-Warning "Could not read the Workshop ID from the output. Copy it from the Workshop URL into publish\workshop_id.txt."
+        Write-Warning "Could not read the Workshop ID from the output. Copy it from the Workshop URL into publish\workshop_id.txt, then run publish.bat -DescriptionOnly."
+        return
     }
-    Write-Host "New items are uploaded as HIDDEN: open the page to set description, screenshots and visibility."
+    Write-Host "New items are uploaded as HIDDEN: use -Visibility public (or set it on the page) when ready."
+}
+
+if (!$SkipDescription) {
+    Update-WorkshopMetadata $workshopId $addon.title
 }

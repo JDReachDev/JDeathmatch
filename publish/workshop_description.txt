@@ -1,35 +1,67 @@
 [h1]JDeathmatch[/h1]
-A customizable free-for-all deathmatch gamemode.
+[b]Fast, no-nonsense free-for-all deathmatch.[/b] Pick your loadout, rack up kills, unleash the MOAB, be the first to the kill limit. Every weapon, speed and rule is configurable, and it works with any weapon pack.
+
+[h2]How to play[/h2]
+[list]
+[*] Pick [b]JDeathmatch[/b] from the gamemode list (bottom right of the main menu) and start a map, ideally a [i]dm_[/i] map.
+[*] Choose your weapons in the loadout menu, then fight.
+[*] First player to reach the kill limit (default [b]30[/b]) wins the match.
+[/list]
 
 [h2]Features[/h2]
 [list]
-[*] Loadout menu (press [b]Q[/b]) with primary, secondary and two special slots
-[*] Weapons fully configurable through a JSON file - works with any SWEP pack (M9K, etc.)
-[*] [b]MOAB[/b] killstreak: reach the kill threshold and become the Annihilator with a random super weapon
-[*] Slow-motion match ending and winner spectate
-[*] End-of-match map vote ([i]dm_[/i] and [i]ttt_[/i] maps)
-[*] Custom scoreboard with K/D, MOAB status and win progress
+[*] [b]Loadout menu[/b] (press [b]Q[/b]): one primary, one secondary and two special slots. Changes apply on your next spawn.
+[*] [b]Any weapon pack[/b]: HL2, M9K, CW, TFA... the weapon list is a simple JSON file.
+[*] [b]Per-weapon balancing[/b]: set the starting ammo and a damage multiplier for each weapon (also for grenades and rockets).
+[*] [b]MOAB killstreak[/b]: reach the kill threshold to become the [b]Annihilator[/b] and get a random super weapon for a limited time.
+[*] [b]Slow-motion finale[/b]: the winning kill slows down time, then everyone spectates the winner.
+[*] [b]Map vote[/b] at the end of every match ([i]dm_[/i] and [i]ttt_[/i] maps).
+[*] [b]Scoreboard[/b] (hold [b]Tab[/b]) with kills, deaths, K/D, MOAB status and progress to win.
+[*] Works with [b]bots[/b], perfect for testing your setup.
 [/list]
 
+[h2]Controls[/h2]
+[table]
+[tr][th]Key[/th][th]Action[/th][/tr]
+[tr][td]Q[/td][td]Open / close the loadout menu[/td][/tr]
+[tr][td]Tab[/td][td]Scoreboard[/td][/tr]
+[tr][td]F[/td][td]Flashlight (if enabled)[/td][/tr]
+[/table]
+
 [h2]Settings[/h2]
-All settings are available in the Start New Game menu or as ConVars:
+Set them in the [b]Start New Game[/b] menu, in [i]server.cfg[/i] or live from the console:
 [table]
 [tr][th]ConVar[/th][th]Default[/th][th]Description[/th][/tr]
 [tr][td]jdm_playerhealth[/td][td]100[/td][td]Player health[/td][/tr]
 [tr][td]jdm_playerwalkspeed[/td][td]100[/td][td]Walk speed (%)[/td][/tr]
 [tr][td]jdm_playerrunspeed[/td][td]100[/td][td]Sprint speed (%)[/td][/tr]
-[tr][td]jdm_gravity[/td][td]100[/td][td]Gravity (%)[/td][/tr]
-[tr][td]jdm_maxkills[/td][td]30[/td][td]Kills to win[/td][/tr]
-[tr][td]jdm_moabkills[/td][td]25[/td][td]Kills to get the MOAB[/td][/tr]
-[tr][td]jdm_moabtimer[/td][td]30[/td][td]MOAB duration (seconds)[/td][/tr]
-[tr][td]jdm_flashlight[/td][td]1[/td][td]Allow flashlight[/td][/tr]
+[tr][td]jdm_gravity[/td][td]100[/td][td]Gravity (%), lower = higher jumps[/td][/tr]
+[tr][td]jdm_maxkills[/td][td]30[/td][td]Kills to win the match[/td][/tr]
+[tr][td]jdm_moabkills[/td][td]25[/td][td]Kills to get the MOAB (keep it below jdm_maxkills)[/td][/tr]
+[tr][td]jdm_moabtimer[/td][td]30[/td][td]MOAB duration in seconds[/td][/tr]
+[tr][td]jdm_flashlight[/td][td]1[/td][td]Allow the flashlight[/td][/tr]
 [tr][td]jdm_farspawn[/td][td]0[/td][td]Spawn far from enemies (beta)[/td][/tr]
 [/table]
 
-[h2]Weapons[/h2]
-Weapons are defined in [b]garrysmod/data/jdmw.txt[/b] (generated on first start).
-Run [b]jdm_reloadWeaponsConfig[/b] after editing it.
-Full guide and examples: [url=https://github.com/JDReachDev/JDeathmatch]GitHub[/url]
+[h2]Custom weapons[/h2]
+The weapon list lives in [b]garrysmod/data/jdmw.txt[/b] and is created with HL2 weapons on first start. Each entry looks like this:
+[code]{ "id": "weapon_ar2", "name": "AR2", "slot": 1, "ammo": 120, "dmgmul": 1.0 }[/code]
+[list]
+[*] [b]slot[/b]: 1 = primary, 2 = secondary, 3 = special (also selectable in slot 4), 4 = second special only, [b]666 = MOAB weapon[/b]
+[*] [b]ammo[/b]: total ammo on spawn (0 = weapon default)
+[*] [b]dmgmul[/b]: damage multiplier (1 = normal, 0.5 = half, 2 = double)
+[/list]
+After editing, run [b]jdm_reloadWeaponsConfig[/b] from the server console (or as admin) to apply it without restarting.
+Full guide and a ready-made M9K example: [url=https://github.com/JDReachDev/JDeathmatch]GitHub[/url]
 
-[h2]Source & bug reports[/h2]
-[url=https://github.com/JDReachDev/JDeathmatch]github.com/JDReachDev/JDeathmatch[/url]
+[h2]Dedicated servers[/h2]
+Add this addon (and the weapon packs you use) to your server's Workshop collection, so players download everything automatically, then start with [b]+gamemode jdeathmatch[/b].
+
+[h2]Known limitations[/h2]
+[list]
+[*] Free-for-all only, no teams.
+[*] Addons that override spawning or loadouts may conflict.
+[/list]
+
+[h2]Bugs & suggestions[/h2]
+Leave a comment below or open an issue on [url=https://github.com/JDReachDev/JDeathmatch/issues]GitHub[/url].

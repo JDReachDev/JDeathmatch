@@ -5,12 +5,23 @@ It is excluded from the `.gma` package (see `ignore` in `addon.json`).
 
 | File | Purpose |
 |---|---|
-| `publish.bat` | Double-click to build and upload (wraps `publish.ps1`). |
-| `publish.ps1` | Build + create/update script. |
+| `publish.bat` | Double-click to build, upload and push the description (wraps `publish.ps1`). |
+| `publish.ps1` | Build + create/update + description script. |
+| `preview_description.bat` | Double-click to preview the description as it will look on the Workshop. |
 | `icon.jpg` | Workshop thumbnail. **Must be a 512x512 JPEG.** |
-| `workshop_description.txt` | Description in Steam BBCode, ready to paste on the Workshop page. |
+| `workshop_description.txt` | Workshop description in Steam BBCode. **Edit it here, not on the website**: every upload overwrites the page. |
 | `workshop_id.txt` | Created after the first upload. Its presence makes the script *update* instead of *create*. |
-| `out/` | Build output (`jdeathmatch.gma`), ignored by git. |
+| `steamcmd/` | Valve's SteamCMD, downloaded automatically on first use. Ignored by git. |
+| `steam_user.txt` | Your Steam login name, saved on first use. Ignored by git. |
+| `out/` | Build output (`jdeathmatch.gma`, description preview), ignored by git. |
+
+## Why two tools
+
+- `gmpublish` (ships with Garry's Mod) uploads the `.gma` and the icon, using the Steam client you are logged in to.
+  It cannot set the description or the visibility.
+- `SteamCMD` (official Valve tool) updates title, description and visibility of the item.
+  On the first run it asks for your Steam **password and Steam Guard code** (typed by you, in the SteamCMD window);
+  after that the login is cached and it runs without prompts.
 
 ## Requirements
 
@@ -67,26 +78,37 @@ Later updates:
 publish\publish.bat -Changes "Fixed MOAB timer, new weapons"
 ```
 
+Every upload also pushes the title (from `addon.json`) and the description (from `workshop_description.txt`).
+
 Other options:
 
 ```bat
 publish\publish.bat -BuildOnly                       :: only build the .gma (to test locally)
 publish\publish.bat -Changes "New icon" -UpdateIcon   :: also replace the icon
+publish\publish.bat -DescriptionOnly                  :: only push title + description, no upload
+publish\publish.bat -DescriptionOnly -Visibility public   :: ...and make the item public
+publish\publish.bat -SkipDescription -Changes "..."   :: upload without touching the description
 publish\publish.bat -GModPath "D:\SteamLibrary\steamapps\common\GarrysMod"
 ```
 
-## 4. Finish on the Workshop page
+`-Visibility` accepts `public`, `friends`, `private`, `unlisted`. New items start hidden.
 
-`gmpublish` cannot set everything. After the first upload open the item page
-(`https://steamcommunity.com/sharedfiles/filedetails/?id=<ID>`) and:
+## 4. Edit the description
 
-1. **Edit title & description** → paste the content of `workshop_description.txt`.
-2. **Add/edit images & videos** → screenshots (any size, 16:9 looks best) and YouTube videos.
-3. **Visibility** → new items are *Hidden*: set *Public* (or *Friends-only* for testing).
-4. **Add/remove required items** → link the weapon packs your `jdmw.txt` uses (e.g. M9K), so
+1. Edit `workshop_description.txt` ([Steam BBCode](https://steamcommunity.com/comment/Recommendation/formattinghelp):
+   `[h1]`, `[h2]`, `[b]`, `[i]`, `[list]`/`[*]`, `[table]`, `[url=...]`, `[code]`, `[img]`...).
+2. Double-click `preview_description.bat` to see it with a Workshop-like look and check the length (max 8000 characters).
+3. Run `publish.bat -DescriptionOnly` to push it without uploading a new version.
+
+## 5. Finish on the Workshop page
+
+A few things can only be done on the item page (`https://steamcommunity.com/sharedfiles/filedetails/?id=<ID>`):
+
+1. **Add/edit images & videos** → screenshots (any size, 16:9 looks best) and YouTube videos.
+2. **Add/remove required items** → link the weapon packs your `jdmw.txt` uses (e.g. M9K), so
    subscribers get them automatically.
 
-## 5. Use it on a dedicated server
+## 6. Use it on a dedicated server
 
 Add the Workshop ID to the server so clients download the addon (and its sounds) automatically:
 

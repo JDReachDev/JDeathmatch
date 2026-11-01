@@ -23,5 +23,8 @@ if SERVER then
     util.AddNetworkString("JDM_AdminRequestEditor")
     util.AddNetworkString("JDM_AdminOpenEditor")
     util.AddNetworkString("JDM_AdminSaveConfig")
+
+    -- Network string for the kill feed
+    util.AddNetworkString("JDM_KillFeed")
 end
 

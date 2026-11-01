@@ -9,5 +9,6 @@ include("cl_scoreboard.lua")
 include("cl_hud.lua")
 include("cl_weaponselect.lua")
 include("cl_admin.lua")
+include("cl_killfeed.lua")
 
 print("[INFO] JDeathmatch client loaded successfully")

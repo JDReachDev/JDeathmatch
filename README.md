@@ -48,7 +48,7 @@ You can set them in three ways:
 | `jdm_moabkills` | `25` | Kills needed to get the MOAB reward (once per player per map). |
 | `jdm_moabtimer` | `30` | How many seconds the MOAB weapon is kept before it is removed. |
 | `jdm_flashlight` | `1` | `1` = players can use the flashlight, `0` = disabled. |
-| `jdm_farspawn` | `0` | `1` = spawn players at the spawn point farthest from enemies (beta). |
+| `jdm_farspawn` | `0` | `1` = spawn players at the spawn point farthest from enemies.  |
 
 Example `server.cfg`:
 

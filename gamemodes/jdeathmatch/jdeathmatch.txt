@@ -74,8 +74,8 @@
 		9
         {
             "name"      "jdm_farspawn"
-            "text"      "Enable FarSpawn (BETA)"
-            "help"      "Enable or disable FarSpawn Calculation (BETA)"
+            "text"      "Spawn far from enemies"
+            "help"      "Spawn at the point farthest from the nearest enemy"
             "type"      "CheckBox"
             "default"   "0"
         }

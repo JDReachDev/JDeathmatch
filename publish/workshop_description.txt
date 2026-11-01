@@ -43,7 +43,7 @@ Set them in the [b]Start New Game[/b] menu, in [i]server.cfg[/i] or live from th
 [tr][td]jdm_moabkills[/td][td]25[/td][td]Kills to get the MOAB (keep it below jdm_maxkills)[/td][/tr]
 [tr][td]jdm_moabtimer[/td][td]30[/td][td]MOAB duration in seconds[/td][/tr]
 [tr][td]jdm_flashlight[/td][td]1[/td][td]Allow the flashlight[/td][/tr]
-[tr][td]jdm_farspawn[/td][td]0[/td][td]Spawn far from enemies (beta)[/td][/tr]
+[tr][td]jdm_farspawn[/td][td]0[/td][td]Spawn far from enemies[/td][/tr]
 [/table]
 
 [h2]Custom weapons[/h2]

@@ -45,13 +45,22 @@ if CLIENT then
         end
     end
     
-    -- Receive command to play MOAB sound
+    -- New Annihilator: sound and banner (player, name, MOAB weapon class and name)
     net.Receive("JDM_SendMoabSound", function()
+        local ply, name = net.ReadEntity(), net.ReadString()
+        local weaponID, weaponName = net.ReadString(), net.ReadString()
         JDM.Client.Sounds.PlayMOAB()
+        JDM.Client.Announce.Show("moab", {
+            ply = ply, name = name,
+            sub = "with " .. weaponName,
+            weapon = { id = weaponID, name = weaponName },
+        })
     end)
-    
-    -- Receive command to play victory sound
+
+    -- Match won: sound and banner (player, name, kills)
     net.Receive("JDM_SendVictorySound", function()
+        local ply, name, kills = net.ReadEntity(), net.ReadString(), net.ReadUInt(16)
         JDM.Client.Sounds.PlayVictory()
+        JDM.Client.Announce.Show("win", { ply = ply, name = name, sub = "has won the match  ·  " .. kills .. " kills" })
     end)
 end

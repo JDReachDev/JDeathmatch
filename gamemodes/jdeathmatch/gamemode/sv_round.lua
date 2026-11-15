@@ -25,8 +25,11 @@ if SERVER then
         JDM.Round.SlowMotionActive = true
         JDM.Round.SlowMotionStartTime = CurTime()
         
-        -- Play victory sound immediately
+        -- Victory sound and winner banner (avatar + crown) right away
         net.Start("JDM_SendVictorySound")
+        net.WriteEntity(winner)
+        net.WriteString(winner:Nick())
+        net.WriteUInt(math.Clamp(winner:Frags(), 0, 65535), 16)
         net.Broadcast()
         
         -- Slow down everything: movement, animations, physics, etc.
@@ -67,8 +70,8 @@ if SERVER then
             end
         end
         
-        -- Message for everyone
-        PrintMessage(HUD_PRINTCENTER, winner:Nick() .. " has won the match!")
+        -- Chat line (the banner is already on screen)
+        PrintMessage(HUD_PRINTTALK, winner:Nick() .. " has won the match!")
         
         -- After 5 seconds, a 15 second map vote, then the map changes
         -- (a vote an admin already started keeps going)

@@ -40,12 +40,14 @@ if SERVER then
             wep:SetNWInt("JDM_Slot", 5) -- "Extra" group in the weapon selector
         end
 
-        -- Notify all players
-        local message = ply:Nick() .. " has become an Annihilator with " .. weapon.name .. "."
-        PrintMessage(HUD_PRINTCENTER, message)
-        
-        -- Play sound to all players
+        -- Notify all players: chat line, then sound and banner (avatar + weapon icon)
+        PrintMessage(HUD_PRINTTALK, ply:Nick() .. " has become an Annihilator with " .. weapon.name .. ".")
+
         net.Start("JDM_SendMoabSound")
+        net.WriteEntity(ply)
+        net.WriteString(ply:Nick())
+        net.WriteString(weapon.id)
+        net.WriteString(weapon.name)
         net.Broadcast()
         
         -- After X seconds, remove weapon

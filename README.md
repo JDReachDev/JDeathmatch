@@ -172,6 +172,8 @@ open, the keyboard is only taken while you type in a text field.
 - After dying, click to respawn, or wait `jdm_respawntime` seconds (20 by default) for the automatic respawn.
 - Press `Q` to open/close the loadout menu, also while playing. Click a weapon per slot (click it again to
   remove it); the last loadout is remembered between sessions. Changes apply on the next spawn.
+- The **Player model** button in the loadout menu opens the model picker: search the installed player
+  models, see the selected one in 3D, and use it from the next spawn (it sets `cl_playermodel`).
 - Hold `Tab` for the scoreboard (kills, deaths, K/D, MOAB status, progress to win).
 - Mouse wheel and number keys pick weapons by loadout group: `1` primary, `2` secondary, `3`/`4` specials, `5` MOAB and extras.
 - The HUD shows health, armor, ammo (clip / reserve and alt-fire) and the kills needed to win, with the MOAB mark.

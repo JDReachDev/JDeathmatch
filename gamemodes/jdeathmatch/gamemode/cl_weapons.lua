@@ -243,7 +243,7 @@ if CLIENT then
         for _, section in ipairs(sections) do
             contentH = contentH + S(44) + math.ceil(#section.list / cols) * (cardH + space)
         end
-        local sideH = S(34) + 4 * (slotH + space) + S(20) + 2 * (S(40) + S(8))
+        local sideH = S(34) + 4 * (slotH + space) + S(20) + 3 * (S(40) + S(8))
         local frameH = S(62) + S(12) + math.max(contentH, sideH) + S(16)
 
         local frame = UI.Frame("Loadout", frameW, math.min(frameH, ScrH() - S(80)))
@@ -313,6 +313,15 @@ if CLIENT then
         end)
         save:Dock(BOTTOM)
         save:SetTall(S(40))
+
+        -- Player model picker (cl_playermodel.lua), between the admin menu and the save button.
+        -- It opens on top: the loadout stays open behind it with the picks not saved yet.
+        local model = UI.Button(side, "Player model", "ghost", function()
+            JDM.Client.PlayerModel.Open()
+        end)
+        model:Dock(BOTTOM)
+        model:SetTall(S(40))
+        model:DockMargin(0, 0, 0, S(8))
 
         if LocalPlayer():IsAdmin() then
             local admin = UI.Button(side, "Admin menu  (F3)", "ghost", function()

@@ -114,6 +114,18 @@ if SERVER then
         end
         
         print("[INFO] Weapons loaded and divided into slots!")
+
+        -- Saved loadouts may point to weapons that were removed or moved to another slot:
+        -- drop those picks, so nobody spawns with a weapon that is no longer in the config
+        for _, selection in pairs(JDM.Weapons.PlayerSelections or {}) do
+            for slot, weaponID in pairs(selection) do
+                local valid = false
+                for _, weapon in ipairs(JDM.Weapons.Slots[slot] or {}) do
+                    if weapon.id == weaponID then valid = true break end
+                end
+                if !valid then selection[slot] = nil end
+            end
+        end
     end
     
     -- Validate a weapon selection

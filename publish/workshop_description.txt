@@ -10,12 +10,13 @@
 
 [h2]Features[/h2]
 [list]
-[*] [b]Loadout menu[/b] (press [b]Q[/b]): one primary, one secondary and two special slots. Changes apply on your next spawn.
+[*] [b]Loadout menu[/b] (press [b]Q[/b], also while playing): one primary, one secondary and two special slots. Your last loadout is remembered, changes apply on your next spawn.
 [*] [b]Any weapon pack[/b]: HL2, M9K, CW, TFA... the weapon list is a simple JSON file.
 [*] [b]Per-weapon balancing[/b]: set the starting ammo and a damage multiplier for each weapon (also for grenades and rockets).
-[*] [b]MOAB killstreak[/b]: reach the kill threshold to become the [b]Annihilator[/b] and get a random super weapon for a limited time.
+[*] [b]MOAB killstreak[/b]: reach the kill threshold to become the [b]Annihilator[/b] and get a random super weapon for a limited time. Kills can count over the whole match or only in a row without dying.
 [*] [b]Slow-motion finale[/b]: the winning kill slows down time, then everyone spectates the winner.
-[*] [b]Map vote[/b] at the end of every match ([i]dm_[/i] and [i]ttt_[/i] maps).
+[*] [b]Map vote[/b] at the end of every match ([i]dm_[/i] and [i]ttt_[/i] maps) with live vote counts. Admins can also start one mid-match.
+[*] [b]Menus you can use while playing[/b]: they keep the keyboard on the game, so you keep moving.
 [*] [b]Scoreboard[/b] (hold [b]Tab[/b]) with kills, deaths, K/D, MOAB status and progress to win.
 [*] [b]Custom HUD[/b]: health, armor, ammo and kills to win, a weapon selector grouped by loadout slot and a kill feed with your weapon names (and headshots).
 [*] Works with [b]bots[/b], perfect for testing your setup.
@@ -27,7 +28,8 @@
 [tr][td]Q[/td][td]Open / close the loadout menu[/td][/tr]
 [tr][td]Tab[/td][td]Scoreboard[/td][/tr]
 [tr][td]Wheel / 1-5[/td][td]Switch weapon, grouped by loadout slot[/td][/tr]
-[tr][td]F3[/td][td]Admin menu: weapons and settings[/td][/tr]
+[tr][td]F3[/td][td]Admin menu: weapons and settings (press again to hide it)[/td][/tr]
+[tr][td]F4[/td][td]Map vote: take / give back the cursor[/td][/tr]
 [tr][td]F[/td][td]Flashlight (if enabled)[/td][/tr]
 [/table]
 
@@ -41,6 +43,7 @@ Set them in the [b]Start New Game[/b] menu, in [i]server.cfg[/i] or live from th
 [tr][td]jdm_gravity[/td][td]100[/td][td]Gravity (%), lower = higher jumps[/td][/tr]
 [tr][td]jdm_maxkills[/td][td]30[/td][td]Kills to win the match[/td][/tr]
 [tr][td]jdm_moabkills[/td][td]25[/td][td]Kills to get the MOAB (keep it below jdm_maxkills)[/td][/tr]
+[tr][td]jdm_moabstreak[/td][td]0[/td][td]1 = MOAB kills must be in a row, without dying[/td][/tr]
 [tr][td]jdm_moabtimer[/td][td]30[/td][td]MOAB duration in seconds[/td][/tr]
 [tr][td]jdm_flashlight[/td][td]1[/td][td]Allow the flashlight[/td][/tr]
 [tr][td]jdm_farspawn[/td][td]0[/td][td]Spawn far from enemies[/td][/tr]

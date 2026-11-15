@@ -1,12 +1,14 @@
 <#
 .SYNOPSIS
-    Builds JDeathmatch into a .gma and publishes / updates it on the Steam Workshop,
-    including title, description and visibility.
+    Builds JDeathmatch into a .gma and publishes / updates it on the Steam Workshop.
+    The description is pushed only with -WithDescription or -DescriptionOnly: they use SteamCMD, which
+    logs in with your account and so logs the Steam client out.
 
 .EXAMPLE
     .\publish.ps1 -BuildOnly
     .\publish.ps1 -Changes "Fixed MOAB timer"
     .\publish.ps1 -Changes "New icon" -UpdateIcon
+    .\publish.ps1 -Changes "New text" -WithDescription
     .\publish.ps1 -DescriptionOnly
     .\publish.ps1 -DescriptionOnly -Visibility public
     .\publish.ps1 -Collection
@@ -20,8 +22,8 @@ param(
     [switch]$UpdateIcon,
     # Only push title + description (and visibility) from workshop_description.txt, no build/upload
     [switch]$DescriptionOnly,
-    # Do not push the description after uploading the .gma
-    [switch]$SkipDescription,
+    # Also push title + description with SteamCMD after uploading (logs the Steam client out)
+    [switch]$WithDescription,
     # Only push collection_title.txt + collection_description.txt to the example collection (collection_id.txt)
     [switch]$Collection,
     # Also change visibility: public, friends, private, unlisted
@@ -191,7 +193,7 @@ $gmpublish  = Join-Path $gmod "bin\gmpublish.exe"
 Write-Host "Garry's Mod: $gmod"
 
 # Validate the description before uploading anything
-Read-Description $DescriptionFile $RepoRoot | Out-Null
+if ($WithDescription) { Read-Description $DescriptionFile $RepoRoot | Out-Null }
 
 # Build
 New-Item -ItemType Directory -Force $OutDir | Out-Null
@@ -216,7 +218,7 @@ if ($workshopId) {
     if ($script:LastToolExitCode -ne 0 -or $log -match 'Update failed') {
         # gmpublish sometimes fails with "File not found": upload the .gma with SteamCMD instead
         # (this also pushes title and description, as a normal update does)
-        Write-Warning "gmpublish update failed, uploading the .gma with SteamCMD instead."
+        Write-Warning "gmpublish update failed, uploading the .gma with SteamCMD instead (this logs the Steam client out)."
         $contentDir = Join-Path $OutDir "content"
         if (Test-Path $contentDir) { Remove-Item $contentDir -Recurse -Force }
         New-Item -ItemType Directory -Force $contentDir | Out-Null
@@ -245,6 +247,6 @@ if ($workshopId) {
     Write-Host "New items are uploaded as HIDDEN: use -Visibility public (or set it on the page) when ready."
 }
 
-if (!$SkipDescription) {
+if ($WithDescription) {
     Update-WorkshopMetadata $workshopId $addon.title $DescriptionFile
 }

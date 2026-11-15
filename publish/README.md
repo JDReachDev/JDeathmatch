@@ -5,12 +5,12 @@ It is excluded from the `.gma` package (see `ignore` in `addon.json`).
 
 | File | Purpose |
 |---|---|
-| `publish.bat` | Double-click to build, upload and push the description (wraps `publish.ps1`). |
-| `publish.ps1` | Build + create/update + description script. |
+| `publish.bat` | Double-click to build and upload the `.gma` (wraps `publish.ps1`). The description is left alone. |
+| `publish.ps1` | Build + create/update script (description only with `-WithDescription` / `-DescriptionOnly`). |
 | `preview_description.bat` | Double-click to preview the description as it will look on the Workshop. |
 | `icon.jpg` | Workshop thumbnail. **Must be a 512x512 JPEG.** |
 | `make_icon.ps1` | Renders `icon.jpg` (see below). |
-| `workshop_description.txt` | Workshop description in Steam BBCode. **Edit it here, not on the website**: every upload overwrites the page. |
+| `workshop_description.txt` | Workshop description in Steam BBCode. Uploads no longer touch the page: paste it on the website by hand, or push it with `-DescriptionOnly`. |
 | `workshop_id.txt` | Created after the first upload. Its presence makes the script *update* instead of *create*. |
 | `collection_id.txt`, `collection_title.txt`, `collection_description.txt` | The example collection ("Pure Chaos") linked from the addon page. |
 | `description.ps1` | Shared helpers (placeholders, length check) used by both scripts. |
@@ -88,7 +88,9 @@ Later updates:
 publish\publish.bat -Changes "Fixed MOAB timer, new weapons"
 ```
 
-Every upload also pushes the title (from `addon.json`) and the description (from `workshop_description.txt`).
+An upload only replaces the `.gma` (through the Steam client, which stays logged in). The title and the
+description are pushed only when you ask for it (`-WithDescription` or `-DescriptionOnly`), because SteamCMD
+logs in with your account and Steam allows one session at a time: the Steam client gets logged out.
 
 Other options:
 
@@ -97,7 +99,7 @@ publish\publish.bat -BuildOnly                       :: only build the .gma (to 
 publish\publish.bat -Changes "New icon" -UpdateIcon   :: also replace the icon
 publish\publish.bat -DescriptionOnly                  :: only push title + description, no upload
 publish\publish.bat -DescriptionOnly -Visibility public   :: ...and make the item public
-publish\publish.bat -SkipDescription -Changes "..."   :: upload without touching the description
+publish\publish.bat -WithDescription -Changes "..."   :: upload and also push title + description (logs Steam out)
 publish\publish.bat -GModPath "D:\SteamLibrary\steamapps\common\GarrysMod"
 ```
 

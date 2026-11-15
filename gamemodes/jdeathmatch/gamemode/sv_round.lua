@@ -15,6 +15,11 @@ if SERVER then
         if !IsValid(winner) then return end
         if JDM.Round.IsEnding then return end
         JDM.Round.IsEnding = true
+
+        -- Nobody respawns from now on: hide the respawn countdown of dead players
+        for _, ply in player.Iterator() do
+            ply:SetNWFloat("JDM_RespawnAt", 0)
+        end
         
         -- Set slow motion active
         JDM.Round.SlowMotionActive = true
@@ -95,6 +100,7 @@ if SERVER then
     end)
 
     hook.Add("PlayerDeath", "JDM_AutoRespawnTimer", function(victim)
+        if JDM.Round.IsEnding then return end
         victim:SetNWFloat("JDM_RespawnAt", CurTime() + math.max(GetConVar("jdm_respawntime"):GetFloat(), 1))
     end)
 

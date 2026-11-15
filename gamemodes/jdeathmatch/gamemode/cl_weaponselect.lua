@@ -137,8 +137,8 @@ if CLIENT then
         local alpha = math.Clamp((Select.ShowUntil - CurTime()) / 0.3, 0, 1)
         local current = GetCurrent(ply)
 
-        local colW, gap = math.Round(170 * s), math.Round(8 * s)
-        local headerH, rowH = math.Round(28 * s), math.Round(30 * s)
+        local colW, gap = math.Round(200 * s), math.Round(8 * s)
+        local headerH, rowH = math.Round(28 * s), math.Round(46 * s)
         local totalW = colW * GROUPS + gap * (GROUPS - 1)
         local x0, y = math.Round(ScrW() / 2 - totalW / 2), math.Round(100 * s)
 
@@ -156,13 +156,21 @@ if CLIENT then
                 local selected = wep == current
 
                 draw.RoundedBox(4, x, ry, colW, rowH, selected and colors.Accent or colors.Background)
+                -- Icon on the left, name next to it
+                local pad = math.Round(4 * s)
+                local iconSize = rowH - pad * 2
+                if JDM.Client.Weapons and JDM.Client.Weapons.DrawIcon then
+                    JDM.Client.Weapons.DrawIcon({ id = wep:GetClass(), name = HUD.GetWeaponName(wep) }, x + pad, ry + pad, iconSize)
+                end
+                local textX = x + pad * 2 + iconSize + math.Round(4 * s)
+
                 local name = string.upper(HUD.GetWeaponName(wep))
                 surface.SetFont("JDM_HUD_Small")
-                while #name > 1 and surface.GetTextSize(name .. "...") > colW - math.Round(20 * s) do
+                while #name > 1 and surface.GetTextSize(name .. "...") > x + colW - textX - math.Round(6 * s) do
                     name = string.sub(name, 1, -2)
                 end
                 if name != string.upper(HUD.GetWeaponName(wep)) then name = name .. "..." end
-                draw.SimpleText(name, "JDM_HUD_Small", x + math.Round(10 * s), ry + rowH / 2, selected and color_white or colors.Text, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+                draw.SimpleText(name, "JDM_HUD_Small", textX, ry + rowH / 2, selected and color_white or colors.Text, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
             end
         end
         surface.SetAlphaMultiplier(1)

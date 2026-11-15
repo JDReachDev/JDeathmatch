@@ -206,10 +206,34 @@ if CLIENT then
                 entry:SetWide(S(120))
 
             elseif cvar.type == "music" then
-                local play = UI.Button(row, "Play", "ghost", function()
-                    RunConsoleCommand("stopsound")
-                    timer.Simple(0.1, function() surface.PlaySound(values[cvar.name]) end)
-                end)
+                -- Play / Stop toggle; the preview stops by itself when the track ends or the menu closes
+                local preview
+                local function StopPreview()
+                    if preview then preview:Stop() end
+                    preview = nil
+                end
+
+                local play = UI.Button(row, "Play", "ghost")
+                play.DoClick = function(self)
+                    if preview then
+                        StopPreview()
+                        self:SetLabel("Play")
+                        return
+                    end
+                    local path = values[cvar.name]
+                    if !path or path == "" then return end
+                    preview = CreateSound(LocalPlayer(), path)
+                    preview:SetSoundLevel(0)
+                    preview:Play()
+                    self:SetLabel("Stop")
+                end
+                play.Think = function(self)
+                    if preview and !preview:IsPlaying() then
+                        StopPreview()
+                        self:SetLabel("Play")
+                    end
+                end
+                play.OnRemove = StopPreview
                 play:Dock(RIGHT)
                 play:SetWide(S(70))
 

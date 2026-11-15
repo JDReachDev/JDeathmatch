@@ -230,19 +230,21 @@ if CLIENT then
             table.insert(sections, { slot = 3, label = "Specials", hint = "PICK TWO", list = specials })
         end
 
-        -- Size: cards in a grid, as many columns as fit
-        local frameW = math.min(S(1000), ScrW() - S(40))
-        local contentW = frameW - S(36) - S(16)
+        -- Size: weapon grid on the left (as many columns as fit), loadout column on the right
+        local frameW = math.min(S(1240), ScrW() - S(40))
+        local sideW, sideGap = S(250), S(14)
+        local contentW = frameW - S(36) - S(16) - sideW - sideGap
         local space, cardH = S(8), S(64)
-        local cols = math.max(math.floor((contentW + space) / (S(220) + space)), 1)
+        local cols = math.max(math.floor((contentW + space) / (S(210) + space)), 1)
         local cardW = math.floor((contentW - space * (cols - 1)) / cols)
 
-        local summaryH = S(64)
+        local slotH = S(72)
         local contentH = 0
         for _, section in ipairs(sections) do
             contentH = contentH + S(44) + math.ceil(#section.list / cols) * (cardH + space)
         end
-        local frameH = S(62) + S(12) + summaryH + S(14) + math.max(contentH, S(60)) + S(16) + S(40) + S(16)
+        local sideH = S(34) + 4 * (slotH + space) + S(20) + 2 * (S(40) + S(8))
+        local frameH = S(62) + S(12) + math.max(contentH, sideH) + S(16)
 
         local frame = UI.Frame("Loadout", frameW, math.min(frameH, ScrH() - S(80)))
         frame:SetHint("Q  CLOSE")
@@ -255,67 +257,42 @@ if CLIENT then
         end
         UpdateSubtitle()
 
-        -- Footer: admin menu and deploy
-        local footer = vgui.Create("DPanel", frame)
-        footer:Dock(BOTTOM)
-        footer:SetTall(S(40))
-        footer:DockMargin(0, S(12), 0, 0)
-        footer:SetPaintBackground(false)
-
-        local save = UI.Button(footer, Weapons.NeedsDeploy and "Deploy" or "Save loadout", "primary", function()
-            Weapons.Selection = working
-            SendSelection()
-            frame:Remove()
-        end)
-        save:Dock(RIGHT)
-        save:SetWide(S(220))
-
-        if LocalPlayer():IsAdmin() then
-            local admin = UI.Button(footer, "Admin menu  (F3)", "ghost", function()
-                frame:Remove()
-                JDM.Client.Admin.Open()
-            end)
-            admin:Dock(LEFT)
-            admin:SetWide(S(200))
-        end
-
-        if #sections == 0 then
-            local wait = UI.Label(frame, "Waiting for the weapon list from the server...", "JDM_UI", C.TextDim)
-            wait:Dock(TOP)
-            return
-        end
-
-        local scroll = UI.Scroll(frame)
+        local scroll
         local headers = {}
 
-        -- Summary: the four picks; click one to jump to its list
-        local summary = vgui.Create("DPanel", frame)
-        summary:Dock(TOP)
-        summary:SetTall(summaryH)
-        summary:DockMargin(0, 0, 0, S(14))
-        summary:SetPaintBackground(false)
+        -- Right column: the four picks (click one to jump to its list), then admin menu and deploy
+        local side = vgui.Create("DPanel", frame)
+        side:Dock(RIGHT)
+        side:SetWide(sideW)
+        side:DockMargin(sideGap, 0, 0, 0)
+        side:SetPaintBackground(false)
 
-        local summarySlots = {
+        local title = UI.Label(side, "YOUR LOADOUT", "JDM_UI", C.TextDim)
+        title:Dock(TOP)
+        title:SetTall(S(26))
+        title:DockMargin(0, 0, 0, S(8))
+
+        local loadoutSlots = {
             { slot = 1, label = "PRIMARY" },
             { slot = 2, label = "SECONDARY" },
             { slot = 3, label = "SPECIAL 1" },
             { slot = 4, label = "SPECIAL 2" },
         }
-        local boxW = math.floor((contentW - space * 3) / 4)
-        for i, info in ipairs(summarySlots) do
-            local box = vgui.Create("DButton", summary)
+        for _, info in ipairs(loadoutSlots) do
+            local box = vgui.Create("DButton", side)
             box:SetText("")
-            box:SetPos((i - 1) * (boxW + space), 0)
-            box:SetSize(boxW, summaryH)
+            box:Dock(TOP)
+            box:SetTall(slotH)
+            box:DockMargin(0, 0, 0, space)
             box.DoClick = function()
                 local header = headers[math.min(info.slot, 3)]
-                if IsValid(header) then scroll:ScrollToChild(header) end
+                if IsValid(header) and IsValid(scroll) then scroll:ScrollToChild(header) end
             end
             box.Paint = function(self, pw, ph)
                 local hov = UI.Hover(self, self:IsHovered())
                 local id = working[info.slot]
                 local weapon = id and FindWeapon(info.slot, id)
-                draw.RoundedBox(6, 0, 0, pw, ph, UI.LerpColor(hov, C.Header, C.Hover))
+                draw.RoundedBox(6, 0, 0, pw, ph, UI.LerpColor(hov, C.Panel, C.Hover))
                 draw.RoundedBoxEx(6, 0, 0, S(3), ph, weapon and C.Accent or C.Line, true, false, true, false)
 
                 local pad = S(8)
@@ -329,6 +306,31 @@ if CLIENT then
             end
         end
 
+        local save = UI.Button(side, Weapons.NeedsDeploy and "Deploy" or "Save loadout", "primary", function()
+            Weapons.Selection = working
+            SendSelection()
+            frame:Remove()
+        end)
+        save:Dock(BOTTOM)
+        save:SetTall(S(40))
+
+        if LocalPlayer():IsAdmin() then
+            local admin = UI.Button(side, "Admin menu  (F3)", "ghost", function()
+                frame:Remove()
+                JDM.Client.Admin.Open()
+            end)
+            admin:Dock(BOTTOM)
+            admin:SetTall(S(40))
+            admin:DockMargin(0, 0, 0, S(8))
+        end
+
+        if #sections == 0 then
+            local wait = UI.Label(frame, "Waiting for the weapon list from the server...", "JDM_UI", C.TextDim)
+            wait:Dock(TOP)
+            return
+        end
+
+        scroll = UI.Scroll(frame)
         scroll:Dock(FILL)
 
         for _, section in ipairs(sections) do

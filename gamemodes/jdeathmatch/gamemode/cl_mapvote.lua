@@ -19,6 +19,24 @@ if CLIENT then
     Vote.Winner = nil
     Vote.MyVote = nil
 
+    -- Workshop ID of the mounted addon that contains each map (built once)
+    local mapAddons
+    local function GetMapAddon(map)
+        if !mapAddons then
+            mapAddons = {}
+            for _, addon in ipairs(engine.GetAddons()) do
+                if addon.mounted and addon.wsid and string.find(string.lower(addon.tags or ""), "map", 1, true) then
+                    for _, bsp in ipairs(file.Find("maps/*.bsp", addon.title) or {}) do
+                        mapAddons[string.StripExtension(bsp)] = addon.wsid
+                    end
+                end
+            end
+        end
+        return mapAddons[map]
+    end
+
+    -- Thumbnail: maps/thumb/<map>.png when the map has one, else the preview image of its
+    -- Workshop addon (downloaded in the background). false = none (the tile shows the name)
     local thumbs = {}
     local function GetThumb(map)
         if thumbs[map] == nil then
@@ -26,8 +44,20 @@ if CLIENT then
             for _, path in ipairs({ "maps/thumb/" .. map .. ".png", "maps/" .. map .. ".png" }) do
                 if file.Exists(path, "GAME") then
                     thumbs[map] = Material(path, "smooth")
-                    break
+                    return thumbs[map]
                 end
+            end
+
+            local wsid = GetMapAddon(map)
+            if wsid then
+                steamworks.FileInfo(wsid, function(info)
+                    if !info or !info.previewid then return end
+                    steamworks.Download(info.previewid, true, function(name)
+                        if !name then return end
+                        local mat = AddonMaterial(name)
+                        if mat and !mat:IsError() then thumbs[map] = mat end
+                    end)
+                end)
             end
         end
         return thumbs[map]
@@ -81,7 +111,20 @@ if CLIENT then
             if mat then
                 surface.SetMaterial(mat)
                 surface.SetDrawColor(255, 255, 255, loser and 70 or 255)
-                surface.DrawTexturedRect(2, 2, pw - 4, imgH)
+                -- Crop to fill the tile without stretching (Workshop previews are often square)
+                local u0, v0, u1, v1 = 0, 0, 1, 1
+                local mw, mh = mat:Width(), mat:Height()
+                if mw > 0 and mh > 0 and imgH > 0 then
+                    local tileAspect, imgAspect = (pw - 4) / imgH, mw / mh
+                    if imgAspect > tileAspect then
+                        local cut = (1 - tileAspect / imgAspect) / 2
+                        u0, u1 = cut, 1 - cut
+                    else
+                        local cut = (1 - imgAspect / tileAspect) / 2
+                        v0, v1 = cut, 1 - cut
+                    end
+                end
+                surface.DrawTexturedRectUV(2, 2, pw - 4, imgH, u0, v0, u1, v1)
             else
                 surface.SetDrawColor(32, 32, 37, 255)
                 surface.DrawRect(2, 2, pw - 4, imgH)

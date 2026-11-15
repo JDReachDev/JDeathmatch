@@ -203,7 +203,21 @@ if SERVER then
             if JDM.Weapons.List and JDM.Weapons.List[1] and JDM.Weapons.List[1].id then
                 ply:Give(JDM.Weapons.List[1].id)
             end
+            return
         end
+
+        -- Start with the lowest slot (the primary when there is one). Next tick, so nothing given
+        -- later in the spawn can take its place.
+        timer.Simple(0, function()
+            if !IsValid(ply) or !ply:Alive() then return end
+            for slot = 1, 4 do
+                local weaponID = selection[slot]
+                if weaponID and ply:HasWeapon(weaponID) then
+                    ply:SelectWeapon(weaponID)
+                    return
+                end
+            end
+        end)
     end
     
     -- Receive weapon selection from client

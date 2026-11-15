@@ -92,9 +92,30 @@ if CLIENT then
         end
     end
 
+    -- Ammo given by Give() when the config leaves it at 0. HL2 weapons are engine weapons (no SWEP
+    -- table), so their default clip is listed here; 0 = no ammo (melee, gravity gun...)
+    local HL2_DEFAULT_AMMO = {
+        weapon_pistol = 18, weapon_357 = 6, weapon_smg1 = 45, weapon_ar2 = 30, weapon_shotgun = 6,
+        weapon_crossbow = 1, weapon_rpg = 3, weapon_frag = 1, weapon_slam = 3,
+        weapon_crowbar = 0, weapon_stunstick = 0, weapon_physcannon = 0, weapon_bugbait = 0,
+    }
+
+    -- Default ammo of a weapon, or nil when it can't be known on this client
+    local function DefaultAmmo(class)
+        if HL2_DEFAULT_AMMO[class] then return HL2_DEFAULT_AMMO[class] end
+        local swep = weapons.Get(class)
+        if !swep or !istable(swep.Primary) then return nil end
+        local ammoType = swep.Primary.Ammo
+        if !ammoType or ammoType == "" or string.lower(ammoType) == "none" then return 0 end
+        return math.max(tonumber(swep.Primary.DefaultClip) or 0, 0)
+    end
+
     -- Ammo only: the damage multiplier is a balance setting, not shown to players
     local function Details(weapon)
-        return (weapon.ammo and weapon.ammo > 0) and (weapon.ammo .. " AMMO") or "DEFAULT AMMO"
+        local ammo = (weapon.ammo and weapon.ammo > 0) and weapon.ammo or DefaultAmmo(weapon.id)
+        if ammo == nil then return "DEFAULT AMMO" end
+        if ammo == 0 then return "NO AMMO" end
+        return ammo .. " AMMO"
     end
 
     function Weapons.IsOpen()

@@ -97,7 +97,7 @@ if CLIENT then
         footer:DockMargin(0, S(10), 0, 0)
         footer:SetPaintBackground(false)
 
-        local columns = { { "CLASS", 0.02, 0.40 }, { "NAME", 0.40, 0.70 }, { "CATEGORY", 0.70, 1 } }
+        local columns = { { "CLASS", 0.10, 0.42 }, { "NAME", 0.42, 0.72 }, { "CATEGORY", 0.72, 1 } }
         ColumnHeader(frame, columns)
 
         local scroll = UI.Scroll(frame)
@@ -113,10 +113,11 @@ if CLIENT then
                 local text = string.lower(weapon.id .. " " .. weapon.name .. " " .. (weapon.category or ""))
                 if filter != "" and !string.find(text, filter, 1, true) then continue end
 
-                local row = UI.Row(scroll, S(32), function(self, pw, ph)
-                    Cell(weapon.id, "JDM_UI", C.Text, pw, ph, 0.02, 0.40)
-                    Cell(weapon.name, "JDM_UI", C.TextDim, pw, ph, 0.40, 0.70)
-                    Cell(weapon.category or "", "JDM_UI_Small", C.TextMuted, pw, ph, 0.70, 1)
+                local row = UI.Row(scroll, S(42), function(self, pw, ph)
+                    JDM.Client.Weapons.DrawIcon(weapon, S(6), S(4), ph - S(8))
+                    Cell(weapon.id, "JDM_UI", C.Text, pw, ph, 0.10, 0.42)
+                    Cell(weapon.name, "JDM_UI", C.TextDim, pw, ph, 0.42, 0.72)
+                    Cell(weapon.category or "", "JDM_UI_Small", C.TextMuted, pw, ph, 0.72, 1)
                 end)
                 row.JDM_Selected = selected[weapon.id] != nil
                 row.DoClick = function(self)
@@ -291,7 +292,7 @@ if CLIENT then
         top:SetPaintBackground(false)
 
         local columns = {
-            { "NAME", 0.03, 0.32 }, { "CLASS", 0.32, 0.60 }, { "SLOT", 0.60, 0.80 },
+            { "NAME", 0.11, 0.36 }, { "CLASS", 0.36, 0.62 }, { "SLOT", 0.62, 0.80 },
             { "AMMO", 0.80, 0.91, TEXT_ALIGN_RIGHT }, { "DMG", 0.91, 1, TEXT_ALIGN_RIGHT },
         }
         ColumnHeader(left, columns)
@@ -313,11 +314,12 @@ if CLIENT then
                 local text = string.lower((weapon.name or "") .. " " .. (weapon.id or ""))
                 if filter != "" and !string.find(text, filter, 1, true) then continue end
 
-                local row = UI.Row(scroll, S(34), function(self, pw, ph)
+                local row = UI.Row(scroll, S(44), function(self, pw, ph)
+                    JDM.Client.Weapons.DrawIcon(weapon, S(6), S(4), ph - S(8))
                     local moab = weapon.slot == JDM.Config.MOABSlot
-                    Cell(weapon.name, "JDM_UI", C.Text, pw, ph, 0.03, 0.32)
-                    Cell(weapon.id, "JDM_UI_Small", C.TextDim, pw, ph, 0.32, 0.60)
-                    Cell(SlotShort(weapon.slot), "JDM_UI_Small", moab and C.Gold or C.TextDim, pw, ph, 0.60, 0.80)
+                    Cell(weapon.name, "JDM_UI", C.Text, pw, ph, 0.11, 0.36)
+                    Cell(weapon.id, "JDM_UI_Small", C.TextDim, pw, ph, 0.36, 0.62)
+                    Cell(SlotShort(weapon.slot), "JDM_UI_Small", moab and C.Gold or C.TextDim, pw, ph, 0.62, 0.80)
                     Cell(weapon.ammo == 0 and "default" or weapon.ammo, "JDM_UI", C.Text, pw, ph, 0.80, 0.91, TEXT_ALIGN_RIGHT)
                     Cell("x" .. weapon.dmgmul, "JDM_UI", weapon.dmgmul != 1 and C.Gold or C.Text, pw, ph, 0.91, 1, TEXT_ALIGN_RIGHT)
                     self.JDM_Selected = selected == weapon
@@ -329,6 +331,21 @@ if CLIENT then
 
         local function SetFieldsEnabled(enabled)
             for _, field in ipairs(fields) do field:SetEnabled(enabled) end
+        end
+
+        -- Preview of the selected weapon: icon, name and class
+        local preview = vgui.Create("DPanel", side)
+        preview:Dock(TOP)
+        preview:SetTall(S(84))
+        preview:DockMargin(0, S(10), 0, 0)
+        preview.Paint = function(self, pw, ph)
+            draw.RoundedBox(6, 0, 0, pw, ph, C.Header)
+            JDM.Client.Weapons.DrawIcon(selected, S(6), S(6), ph - S(12))
+            local tx = ph + S(4)
+            local name = selected and string.upper(selected.name or "") or "NO WEAPON SELECTED"
+            draw.SimpleText(UI.Fit(name, "JDM_UI", pw - tx - S(8)), "JDM_UI", tx, ph / 2 - S(1), selected and C.Text or C.TextMuted, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+            local sub = selected and selected.id or "Click a weapon in the list"
+            draw.SimpleText(UI.Fit(sub, "JDM_UI_Small", pw - tx - S(8)), "JDM_UI_Small", tx, ph / 2 + S(3), C.TextMuted, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
         end
 
         UI.Section(side, "Name shown in menus")

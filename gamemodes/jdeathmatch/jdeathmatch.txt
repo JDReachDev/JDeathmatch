@@ -55,6 +55,14 @@
 			"type"		"Numeric"
 			"default"	"25"
 		}
+		12
+		{
+			"name"		"jdm_moabstreak"
+			"text"		"MOAB kills in a row (no deaths)"
+			"help"		"Off = kills in the whole match count (cumulative), on = only kills in a row without dying"
+			"type"		"CheckBox"
+			"default"	"0"
+		}
 		7
 		{
 			"name"		"jdm_moabtimer"

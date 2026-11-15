@@ -1,4 +1,6 @@
--- Admin weapon config editor (client side): F3, "jdm_admin" or the button in the loadout menu
+-- Admin menu (client side): weapons config and server settings.
+-- F3, "jdm_admin" or the button in the loadout menu. It works while playing: F3 hides it and shows it
+-- again with the unsaved edits, and the keyboard stays on the game unless you are typing in a field.
 
 if CLIENT then
     JDM = JDM or {}
@@ -6,13 +8,15 @@ if CLIENT then
     JDM.Client.Admin = JDM.Client.Admin or {}
 
     local Admin = JDM.Client.Admin
+    local UI = JDM.UI
+    local C, S = UI.Colors, UI.S
 
     local SLOT_CHOICES = {
-        { 1, "1 - Primary" },
-        { 2, "2 - Secondary" },
-        { 3, "3 - Special (slots 3 and 4)" },
-        { 4, "4 - Special (slot 4 only)" },
-        { JDM.Config.MOABSlot, "666 - MOAB weapon" },
+        { 1, "1 - Primary", "PRIMARY" },
+        { 2, "2 - Secondary", "SECONDARY" },
+        { 3, "3 - Special (slots 3 and 4)", "SPECIAL 3+4" },
+        { 4, "4 - Special (slot 4 only)", "SPECIAL 4" },
+        { JDM.Config.MOABSlot, "666 - MOAB weapon", "MOAB" },
     }
 
     -- HL2 weapons are not in weapons.GetList()
@@ -23,41 +27,18 @@ if CLIENT then
         weapon_physcannon = "Gravity Gun", weapon_bugbait = "Bugbait",
     }
 
-    local function SlotLabel(slot)
+    local function SlotShort(slot)
         for _, choice in ipairs(SLOT_CHOICES) do
-            if choice[1] == slot then return choice[2] end
+            if choice[1] == slot then return choice[3] end
         end
         return tostring(slot)
-    end
-
-    local function DarkFrame(title, w, h)
-        local frame = vgui.Create("DFrame")
-        frame:SetTitle("")
-        frame:SetSize(w, h)
-        frame:Center()
-        frame:MakePopup()
-        frame.Paint = function(self, pw, ph)
-            draw.RoundedBox(8, 0, 0, pw, ph, Color(20, 20, 20, 245))
-            draw.RoundedBoxEx(8, 0, 0, pw, 30, Color(40, 40, 40), true, true, false, false)
-            draw.SimpleText(title, "DermaDefaultBold", 10, 15, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-        end
-        return frame
-    end
-
-    local function Label(parent, text)
-        local label = vgui.Create("DLabel", parent)
-        label:SetText(text)
-        label:SetTextColor(Color(200, 200, 200))
-        label:Dock(TOP)
-        label:DockMargin(0, 8, 0, 2)
-        return label
     end
 
     -- Installed weapons (SWEPs + HL2) that are not in the list yet
     local function GetInstalledWeapons(exclude)
         local result = {}
         for class, name in pairs(HL2_WEAPONS) do
-            if !exclude[class] then table.insert(result, { id = class, name = name }) end
+            if !exclude[class] then table.insert(result, { id = class, name = name, category = "Half-Life 2" }) end
         end
         for _, swep in ipairs(weapons.GetList()) do
             local class = swep.ClassName
@@ -69,62 +50,109 @@ if CLIENT then
         return result
     end
 
+    -- Text in a column of a row: x and width as fractions of the row
+    local function Cell(text, font, color, pw, ph, from, to, align)
+        local x, w = math.Round(pw * from), math.Round(pw * (to - from)) - S(10)
+        text = UI.Fit(tostring(text), font, w)
+        if align == TEXT_ALIGN_RIGHT then
+            draw.SimpleText(text, font, x + w, ph / 2, color, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+        else
+            draw.SimpleText(text, font, x, ph / 2, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+        end
+    end
+
+    local function ColumnHeader(parent, columns)
+        local header = vgui.Create("DPanel", parent)
+        header:Dock(TOP)
+        header:SetTall(S(26))
+        header:DockMargin(0, 0, S(10), S(4))
+        header.Paint = function(self, pw, ph)
+            for _, col in ipairs(columns) do
+                Cell(col[1], "JDM_UI_Small", C.TextMuted, pw, ph, col[2], col[3], col[4])
+            end
+        end
+        return header
+    end
+
+    ---------------------------------------------------------------------------
+    -- Weapon picker
+    ---------------------------------------------------------------------------
+
     -- Picker to add installed weapons; onPick(weapon) for each one chosen
     local function OpenWeaponPicker(exclude, onPick)
-        local frame = DarkFrame("Add weapons (double-click, or select several and press Add)", 560, 520)
+        if IsValid(Admin.Picker) then Admin.Picker:Remove() end
 
-        local search = vgui.Create("DTextEntry", frame)
+        local frame = UI.Frame("Add weapons", S(720), S(640))
+        frame:SetSubtitle("Click to select, double-click to add right away")
+        UI.Popup(frame)
+        Admin.Picker = frame
+
+        local search = UI.TextEntry(frame, "Search by class, name or category...")
         search:Dock(TOP)
-        search:SetPlaceholderText("Search by class, name or category...")
+        search:DockMargin(0, 0, 0, S(10))
 
-        local list = vgui.Create("DListView", frame)
-        list:Dock(FILL)
-        list:DockMargin(0, 6, 0, 6)
-        list:AddColumn("Class")
-        list:AddColumn("Name")
-        list:AddColumn("Category")
+        local footer = vgui.Create("DPanel", frame)
+        footer:Dock(BOTTOM)
+        footer:SetTall(S(36))
+        footer:DockMargin(0, S(10), 0, 0)
+        footer:SetPaintBackground(false)
 
+        local columns = { { "CLASS", 0.02, 0.40 }, { "NAME", 0.40, 0.70 }, { "CATEGORY", 0.70, 1 } }
+        ColumnHeader(frame, columns)
+
+        local scroll = UI.Scroll(frame)
+        scroll:Dock(FILL)
+
+        local selected = {}
         local all = GetInstalledWeapons(exclude)
-        local function Fill(filter)
-            list:Clear()
-            filter = string.lower(filter or "")
+
+        local function Fill()
+            scroll:Clear()
+            local filter = string.lower(search:GetValue() or "")
             for _, weapon in ipairs(all) do
                 local text = string.lower(weapon.id .. " " .. weapon.name .. " " .. (weapon.category or ""))
-                if filter == "" or string.find(text, filter, 1, true) then
-                    list:AddLine(weapon.id, weapon.name, weapon.category or "").weapon = weapon
+                if filter != "" and !string.find(text, filter, 1, true) then continue end
+
+                local row = UI.Row(scroll, S(32), function(self, pw, ph)
+                    Cell(weapon.id, "JDM_UI", C.Text, pw, ph, 0.02, 0.40)
+                    Cell(weapon.name, "JDM_UI", C.TextDim, pw, ph, 0.40, 0.70)
+                    Cell(weapon.category or "", "JDM_UI_Small", C.TextMuted, pw, ph, 0.70, 1)
+                end)
+                row.JDM_Selected = selected[weapon.id] != nil
+                row.DoClick = function(self)
+                    selected[weapon.id] = !selected[weapon.id] and weapon or nil
+                    self.JDM_Selected = selected[weapon.id] != nil
+                end
+                row.DoDoubleClick = function()
+                    selected[weapon.id] = nil
+                    onPick(weapon)
+                    exclude[weapon.id] = true
+                    all = GetInstalledWeapons(exclude)
+                    Fill()
                 end
             end
         end
         Fill()
-        search.OnChange = function(self) Fill(self:GetValue()) end
+        search.OnChange = Fill
 
-        local function AddSelected()
-            for _, line in ipairs(list:GetSelected()) do
-                onPick(line.weapon)
-                exclude[line.weapon.id] = true
+        local add = UI.Button(footer, "Add selected", "primary", function()
+            for id, weapon in SortedPairs(selected) do
+                onPick(weapon)
+                exclude[id] = true
             end
+            selected = {}
             all = GetInstalledWeapons(exclude)
-            Fill(search:GetValue())
-        end
-        list.DoDoubleClick = AddSelected
+            Fill()
+        end)
+        add:Dock(RIGHT)
+        add:SetWide(S(170))
 
-        local manual = vgui.Create("DPanel", frame)
-        manual:Dock(BOTTOM)
-        manual:SetTall(24)
-        manual:SetPaintBackground(false)
-
-        local addButton = vgui.Create("DButton", manual)
-        addButton:SetText("Add")
-        addButton:Dock(RIGHT)
-        addButton:SetWide(90)
-        addButton.DoClick = AddSelected
-
-        local classEntry = vgui.Create("DTextEntry", manual)
+        local classEntry = UI.TextEntry(footer, "...or type a class (e.g. m9k_ak47) and press Enter")
         classEntry:Dock(FILL)
-        classEntry:DockMargin(0, 0, 6, 0)
-        classEntry:SetPlaceholderText("...or type a class (e.g. m9k_ak47) and press Enter")
+        classEntry:DockMargin(0, 0, S(8), 0)
         classEntry.OnEnter = function(self)
             local class = string.Trim(self:GetValue())
+            self:KillFocus()
             if class == "" or exclude[class] then return end
             onPick({ id = class, name = class })
             exclude[class] = true
@@ -132,12 +160,21 @@ if CLIENT then
         end
     end
 
+    ---------------------------------------------------------------------------
     -- Settings tab: every JDM ConVar (sh_convars.lua), sent to the server with "Apply"
-    function Admin.BuildSettings(parent)
-        local scroll = vgui.Create("DScrollPanel", parent)
-        scroll:Dock(FILL)
+    ---------------------------------------------------------------------------
 
+    function Admin.BuildSettings(parent)
         local values = {}
+
+        local footer = vgui.Create("DPanel", parent)
+        footer:Dock(BOTTOM)
+        footer:SetTall(S(36))
+        footer:DockMargin(0, S(10), 0, 0)
+        footer:SetPaintBackground(false)
+
+        local scroll = UI.Scroll(parent)
+        scroll:Dock(FILL)
 
         for _, cvar in ipairs(JDM.ConVars) do
             local current = GetConVar(cvar.name):GetString()
@@ -145,221 +182,231 @@ if CLIENT then
 
             local row = vgui.Create("DPanel", scroll)
             row:Dock(TOP)
-            row:SetTall(34)
-            row:DockMargin(0, 0, 0, 4)
-            row:DockPadding(10, 5, 10, 5)
-            row.Paint = function(self, w, h) draw.RoundedBox(4, 0, 0, w, h, Color(30, 30, 30)) end
-
-            local label = vgui.Create("DLabel", row)
-            label:Dock(LEFT)
-            label:SetWide(330)
-            label:SetText(cvar.help .. "   (" .. cvar.name .. ", default " .. cvar.default .. ")")
-            label:SetTextColor(Color(220, 220, 220))
+            row:SetTall(S(54))
+            row:DockMargin(0, 0, 0, S(4))
+            row:DockPadding(S(14), S(10), S(12), S(10))
+            local info = cvar.name .. "  ·  default " .. cvar.default
+            row.Paint = function(self, w, h)
+                draw.RoundedBox(4, 0, 0, w, h, C.Panel)
+                draw.SimpleText(cvar.help, "JDM_UI", S(14), h / 2 + S(1), C.Text, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+                draw.SimpleText(info, "JDM_UI_Small", S(14), h / 2 + S(2), C.TextMuted, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+            end
 
             if cvar.type == "bool" then
-                local check = vgui.Create("DCheckBox", row)
-                check:Dock(LEFT)
-                check:DockMargin(0, 4, 0, 4)
-                check:SetWide(16)
-                check:SetChecked(tobool(current))
-                check.OnChange = function(_, checked) values[cvar.name] = checked and "1" or "0" end
+                local toggle = UI.Toggle(row, tobool(current), function(on) values[cvar.name] = on and "1" or "0" end)
+                toggle:Dock(RIGHT)
+                toggle:DockMargin(0, S(5), 0, S(5))
 
             elseif cvar.type == "number" then
-                local wang = vgui.Create("DNumberWang", row)
-                wang:Dock(LEFT)
-                wang:SetWide(100)
-                wang:SetMinMax(cvar.min, cvar.max)
-                wang:SetDecimals(0)
-                wang:SetValue(tonumber(current) or tonumber(cvar.default))
-                wang.OnValueChanged = function(_, value) values[cvar.name] = tostring(math.floor(tonumber(value) or 0)) end
+                local entry = UI.NumberEntry(row, cvar.min, cvar.max, 0, tonumber(current) or tonumber(cvar.default), function(n)
+                    values[cvar.name] = tostring(n)
+                end)
+                entry:Dock(RIGHT)
+                entry:SetWide(S(120))
 
             elseif cvar.type == "music" then
-                local entry
-                local box = vgui.Create("DComboBox", row)
-                box:Dock(LEFT)
-                box:SetWide(230)
+                local play = UI.Button(row, "Play", "ghost", function()
+                    RunConsoleCommand("stopsound")
+                    timer.Simple(0.1, function() surface.PlaySound(values[cvar.name]) end)
+                end)
+                play:Dock(RIGHT)
+                play:SetWide(S(70))
+
+                local entry = UI.TextEntry(row, "sound path")
+                entry:Dock(RIGHT)
+                entry:SetWide(S(260))
+                entry:DockMargin(0, 0, S(6), 0)
+                entry:SetValue(current)
+                entry.OnChange = function(self) values[cvar.name] = string.Trim(self:GetValue()) end
+
+                local box = UI.Combo(row)
+                box:Dock(RIGHT)
+                box:SetWide(S(250))
+                box:DockMargin(0, 0, S(6), 0)
                 box:SetValue("Pick a track...")
                 for _, track in ipairs(JDM.Config.WinMusic) do
                     box:AddChoice(track[2], track[1], track[1] == current)
                 end
                 box.OnSelect = function(_, _, _, path) entry:SetValue(path) values[cvar.name] = path end
-
-                local play = vgui.Create("DButton", row)
-                play:Dock(RIGHT)
-                play:SetWide(60)
-                play:SetText("Play")
-                play.DoClick = function() RunConsoleCommand("stopsound") timer.Simple(0.1, function() surface.PlaySound(values[cvar.name]) end) end
-
-                entry = vgui.Create("DTextEntry", row)
-                entry:Dock(FILL)
-                entry:DockMargin(6, 0, 6, 0)
-                entry:SetValue(current)
-                entry.OnChange = function(self) values[cvar.name] = string.Trim(self:GetValue()) end
             end
         end
 
-        local apply = vgui.Create("DButton", parent)
-        apply:Dock(BOTTOM)
-        apply:DockMargin(0, 6, 0, 0)
-        apply:SetTall(30)
-        apply:SetText("Apply settings on the server")
-        apply.DoClick = function()
+        local apply = UI.Button(footer, "Apply settings", "primary")
+        apply:Dock(RIGHT)
+        apply:SetWide(S(220))
+        apply.DoClick = function(self)
             local changed = {}
             for name, value in pairs(values) do
                 if value != GetConVar(name):GetString() then changed[name] = value end
             end
-            if table.IsEmpty(changed) then return end
-
-            net.Start("JDM_AdminSetConVars")
-            net.WriteTable(changed)
-            net.SendToServer()
+            if table.IsEmpty(changed) then
+                self:SetLabel("Nothing changed")
+            else
+                net.Start("JDM_AdminSetConVars")
+                net.WriteTable(changed)
+                net.SendToServer()
+                self:SetLabel("Applied")
+            end
+            timer.Create("JDM_AdminApplyLabel", 1.5, 1, function()
+                if IsValid(self) then self:SetLabel("Apply settings") end
+            end)
         end
+
+        local vote = UI.Button(footer, "Start map vote now (30s)", "ghost", function()
+            RunConsoleCommand("jdm_mapvote", "30")
+        end)
+        vote:Dock(LEFT)
+        vote:SetWide(S(260))
     end
 
-    function Admin.OpenEditor(weaponList)
-        if IsValid(Admin.Frame) then Admin.Frame:Remove() end
+    ---------------------------------------------------------------------------
+    -- Weapons tab
+    ---------------------------------------------------------------------------
 
-        local working = table.Copy(weaponList)
-        local frame = DarkFrame("JDeathmatch - Admin", math.min(980, ScrW() - 40), math.min(620, ScrH() - 40))
-        Admin.Frame = frame
-
-        local sheet = vgui.Create("DPropertySheet", frame)
-        sheet:Dock(FILL)
-
-        local weaponsPanel = vgui.Create("DPanel", sheet)
-        weaponsPanel:SetPaintBackground(false)
-        sheet:AddSheet("Weapons", weaponsPanel, "icon16/gun.png")
-
-        local settingsPanel = vgui.Create("DPanel", sheet)
-        settingsPanel:SetPaintBackground(false)
-        sheet:AddSheet("Settings", settingsPanel, "icon16/cog.png")
-        Admin.BuildSettings(settingsPanel)
-
-        -- Right: fields of the selected weapon
-        local side = vgui.Create("DPanel", weaponsPanel)
-        side:Dock(RIGHT)
-        side:SetWide(300)
-        side:DockMargin(8, 0, 0, 0)
-        side:DockPadding(10, 4, 10, 10)
-        side.Paint = function(self, w, h) draw.RoundedBox(4, 0, 0, w, h, Color(30, 30, 30)) end
-
-        -- Left: the list
-        local list = vgui.Create("DListView", weaponsPanel)
-        list:Dock(FILL)
-        list:SetMultiSelect(false)
-        list:AddColumn("Name"):SetWidth(170)
-        list:AddColumn("Class"):SetWidth(170)
-        list:AddColumn("Slot"):SetWidth(150)
-        list:AddColumn("Ammo"):SetWidth(55)
-        list:AddColumn("Dmg x"):SetWidth(55)
-
-        local function UpdateLine(line)
-            local w = line.weapon
-            line:SetColumnText(1, w.name)
-            line:SetColumnText(2, w.id)
-            line:SetColumnText(3, SlotLabel(w.slot))
-            line:SetColumnText(4, w.ammo == 0 and "default" or w.ammo)
-            line:SetColumnText(5, w.dmgmul)
-        end
-
-        local function AddLine(weapon)
-            local line = list:AddLine("", "", "", "", "")
-            line.weapon = weapon
-            UpdateLine(line)
-            return line
-        end
-
-        for _, weapon in ipairs(working) do AddLine(weapon) end
-
-        -- RemoveLine leaves holes in GetLines(), so collect them in their original order
-        local function GetLines()
-            local lines = {}
-            for _, line in pairs(list:GetLines()) do table.insert(lines, line) end
-            table.sort(lines, function(a, b) return a:GetID() < b:GetID() end)
-            return lines
-        end
-
-        local selectedLine
+    local function BuildWeapons(parent, frame, working)
+        local selected
         local loading = false
 
-        Label(side, "Name shown in menus")
-        local nameEntry = vgui.Create("DTextEntry", side)
-        nameEntry:Dock(TOP)
+        local function MarkDirty()
+            frame.JDM_Dirty = true
+        end
 
-        Label(side, "Weapon class")
-        local classEntry = vgui.Create("DTextEntry", side)
-        classEntry:Dock(TOP)
+        -- Right: fields of the selected weapon
+        local side = vgui.Create("DPanel", parent)
+        side:Dock(RIGHT)
+        side:SetWide(S(320))
+        side:DockMargin(S(12), 0, 0, 0)
+        side:DockPadding(S(14), S(4), S(14), S(14))
+        side.Paint = function(self, w, h) draw.RoundedBox(6, 0, 0, w, h, C.Panel) end
 
-        Label(side, "Slot")
-        local slotBox = vgui.Create("DComboBox", side)
-        slotBox:Dock(TOP)
-        for _, choice in ipairs(SLOT_CHOICES) do slotBox:AddChoice(choice[2], choice[1]) end
+        -- Left: search + list
+        local left = vgui.Create("DPanel", parent)
+        left:Dock(FILL)
+        left:SetPaintBackground(false)
 
-        Label(side, "Ammo on spawn (0 = weapon default)")
-        local ammoWang = vgui.Create("DNumberWang", side)
-        ammoWang:Dock(TOP)
-        ammoWang:SetMinMax(0, 9999)
-        ammoWang:SetDecimals(0)
+        local top = vgui.Create("DPanel", left)
+        top:Dock(TOP)
+        top:SetTall(S(34))
+        top:DockMargin(0, 0, 0, S(10))
+        top:SetPaintBackground(false)
 
-        Label(side, "Damage multiplier (1 = normal)")
-        local dmgSlider = vgui.Create("DNumSlider", side)
-        dmgSlider:Dock(TOP)
-        dmgSlider:SetMinMax(0, 10)
-        dmgSlider:SetDecimals(2)
-        dmgSlider:SetText("")
-        dmgSlider.Label:SetVisible(false)
+        local columns = {
+            { "NAME", 0.03, 0.32 }, { "CLASS", 0.32, 0.60 }, { "SLOT", 0.60, 0.80 },
+            { "AMMO", 0.80, 0.91, TEXT_ALIGN_RIGHT }, { "DMG", 0.91, 1, TEXT_ALIGN_RIGHT },
+        }
+        ColumnHeader(left, columns)
 
-        local fields = { nameEntry, classEntry, slotBox, ammoWang, dmgSlider }
+        local scroll = UI.Scroll(left)
+        scroll:Dock(FILL)
+
+        local search = UI.TextEntry(top, "Filter the list...")
+        search:Dock(FILL)
+        search:DockMargin(0, 0, S(8), 0)
+
+        local fields = {}
+        local Refresh, Select
+
+        Refresh = function()
+            scroll:Clear()
+            local filter = string.lower(search:GetValue() or "")
+            for _, weapon in ipairs(working) do
+                local text = string.lower((weapon.name or "") .. " " .. (weapon.id or ""))
+                if filter != "" and !string.find(text, filter, 1, true) then continue end
+
+                local row = UI.Row(scroll, S(34), function(self, pw, ph)
+                    local moab = weapon.slot == JDM.Config.MOABSlot
+                    Cell(weapon.name, "JDM_UI", C.Text, pw, ph, 0.03, 0.32)
+                    Cell(weapon.id, "JDM_UI_Small", C.TextDim, pw, ph, 0.32, 0.60)
+                    Cell(SlotShort(weapon.slot), "JDM_UI_Small", moab and C.Gold or C.TextDim, pw, ph, 0.60, 0.80)
+                    Cell(weapon.ammo == 0 and "default" or weapon.ammo, "JDM_UI", C.Text, pw, ph, 0.80, 0.91, TEXT_ALIGN_RIGHT)
+                    Cell("x" .. weapon.dmgmul, "JDM_UI", weapon.dmgmul != 1 and C.Gold or C.Text, pw, ph, 0.91, 1, TEXT_ALIGN_RIGHT)
+                    self.JDM_Selected = selected == weapon
+                end)
+                row.DoClick = function() Select(weapon) end
+            end
+        end
+        search.OnChange = Refresh
+
         local function SetFieldsEnabled(enabled)
             for _, field in ipairs(fields) do field:SetEnabled(enabled) end
         end
+
+        UI.Section(side, "Name shown in menus")
+        local nameEntry = UI.TextEntry(side)
+        nameEntry:Dock(TOP)
+
+        UI.Section(side, "Weapon class")
+        local classEntry = UI.TextEntry(side)
+        classEntry:Dock(TOP)
+
+        UI.Section(side, "Slot")
+        local slotBox = UI.Combo(side)
+        slotBox:Dock(TOP)
+        for _, choice in ipairs(SLOT_CHOICES) do slotBox:AddChoice(choice[2], choice[1]) end
+
+        UI.Section(side, "Ammo on spawn (0 = weapon default)")
+        local ammoEntry = UI.NumberEntry(side, 0, 9999, 0, 0, function(n)
+            if loading or !selected then return end
+            selected.ammo = n
+            MarkDirty()
+        end)
+        ammoEntry:Dock(TOP)
+
+        UI.Section(side, "Damage multiplier (1 = normal)")
+        local dmgEntry = UI.NumberEntry(side, 0, 100, 2, 1, function(n)
+            if loading or !selected then return end
+            selected.dmgmul = n
+            MarkDirty()
+        end)
+        dmgEntry:Dock(TOP)
+
+        fields = { nameEntry, classEntry, slotBox, ammoEntry, dmgEntry }
         SetFieldsEnabled(false)
 
         -- Edits apply to the working copy right away; nothing is sent until "Save"
-        local function Edited(apply)
-            if loading or !IsValid(selectedLine) then return end
-            apply(selectedLine.weapon)
-            UpdateLine(selectedLine)
+        nameEntry.OnChange = function(self)
+            if loading or !selected then return end
+            selected.name = self:GetValue()
+            MarkDirty()
         end
-        nameEntry.OnChange = function(self) Edited(function(w) w.name = self:GetValue() end) end
-        classEntry.OnChange = function(self) Edited(function(w) w.id = string.Trim(self:GetValue()) end) end
-        slotBox.OnSelect = function(_, _, _, slot) Edited(function(w) w.slot = slot end) end
-        ammoWang.OnValueChanged = function(self, value) Edited(function(w) w.ammo = math.floor(tonumber(value) or 0) end) end
-        dmgSlider.OnValueChanged = function(self, value) Edited(function(w) w.dmgmul = math.Round(value, 2) end) end
+        classEntry.OnChange = function(self)
+            if loading or !selected then return end
+            selected.id = string.Trim(self:GetValue())
+            MarkDirty()
+        end
+        slotBox.OnSelect = function(_, _, _, slot)
+            if loading or !selected then return end
+            selected.slot = slot
+            MarkDirty()
+        end
 
-        list.OnRowSelected = function(_, _, line)
-            selectedLine = line
-            local w = line.weapon
+        Select = function(weapon)
+            selected = weapon
             loading = true
-            nameEntry:SetValue(w.name or "")
-            classEntry:SetValue(w.id or "")
-            for i, choice in ipairs(SLOT_CHOICES) do
-                if choice[1] == w.slot then slotBox:ChooseOptionID(i) end
+            nameEntry:SetValue(weapon and weapon.name or "")
+            classEntry:SetValue(weapon and weapon.id or "")
+            slotBox:SetValue("")
+            if weapon then
+                for i, choice in ipairs(SLOT_CHOICES) do
+                    if choice[1] == weapon.slot then slotBox:ChooseOptionID(i) end
+                end
             end
-            ammoWang:SetValue(w.ammo or 0)
-            dmgSlider:SetValue(w.dmgmul or 1)
+            ammoEntry:SetNumber(weapon and weapon.ammo or 0)
+            dmgEntry:SetNumber(weapon and weapon.dmgmul or 1)
             loading = false
-            SetFieldsEnabled(true)
-        end
-
-        local function Button(parent, text, dock, onClick)
-            local button = vgui.Create("DButton", parent)
-            button:SetText(text)
-            button:Dock(dock)
-            button:DockMargin(0, 6, 0, 0)
-            button:SetTall(28)
-            button.DoClick = onClick
-            return button
+            SetFieldsEnabled(weapon != nil)
         end
 
         -- Bottom of the side panel, from the bottom up
-        Button(side, "Close without saving", BOTTOM, function() frame:Remove() end)
+        local function SideButton(text, style, onClick)
+            local button = UI.Button(side, text, style, onClick)
+            button:Dock(BOTTOM)
+            button:DockMargin(0, S(6), 0, 0)
+            return button
+        end
 
-        Button(side, "Save and apply on the server", BOTTOM, function()
-            local result = {}
-            for _, line in ipairs(GetLines()) do table.insert(result, line.weapon) end
-
-            local data = util.Compress(util.TableToJSON(result))
+        SideButton("Save and apply", "primary", function()
+            local data = util.Compress(util.TableToJSON(working))
             net.Start("JDM_AdminSaveConfig")
             net.WriteUInt(#data, 32)
             net.WriteData(data, #data)
@@ -367,23 +414,72 @@ if CLIENT then
             frame:Remove()
         end)
 
-        Button(side, "Remove selected", BOTTOM, function()
-            if !IsValid(selectedLine) then return end
-            list:RemoveLine(selectedLine:GetID())
-            selectedLine = nil
-            SetFieldsEnabled(false)
+        SideButton("Remove selected", "danger", function()
+            if !selected then return end
+            table.RemoveByValue(working, selected)
+            Select(nil)
+            MarkDirty()
+            Refresh()
         end)
 
-        Button(side, "Add weapons...", BOTTOM, function()
+        local add = UI.Button(top, "Add weapons...", "ghost", function()
             local exclude = {}
-            for _, line in ipairs(GetLines()) do exclude[line.weapon.id] = true end
+            for _, weapon in ipairs(working) do exclude[weapon.id] = true end
 
             OpenWeaponPicker(exclude, function(weapon)
-                local line = AddLine({ id = weapon.id, name = weapon.name, slot = 1, ammo = 0, dmgmul = 1 })
-                list:ClearSelection()
-                list:SelectItem(line)
+                local entry = { id = weapon.id, name = weapon.name, slot = 1, ammo = 0, dmgmul = 1 }
+                table.insert(working, entry)
+                MarkDirty()
+                Refresh()
+                Select(entry)
             end)
         end)
+        add:Dock(RIGHT)
+        add:SetWide(S(170))
+
+        Refresh()
+    end
+
+    ---------------------------------------------------------------------------
+    -- Frame
+    ---------------------------------------------------------------------------
+
+    function Admin.OpenEditor(weaponList)
+        if IsValid(Admin.Frame) then Admin.Frame:Remove() end
+
+        local working = table.Copy(weaponList)
+        for _, weapon in ipairs(working) do
+            weapon.name = weapon.name or weapon.id
+            weapon.ammo = tonumber(weapon.ammo) or 0
+            weapon.dmgmul = tonumber(weapon.dmgmul) or 1
+        end
+
+        local frame = UI.Frame("Admin", S(1100), S(720))
+        frame:SetHint("F3  HIDE")
+        UI.Popup(frame)
+        Admin.Frame = frame
+
+        frame.Think = function(self)
+            self:SetSubtitle(self.JDM_Dirty and "Unsaved weapon changes" or "Weapons config and server settings")
+        end
+
+        -- The X discards the edits; F3 only hides the menu
+        frame.OnRemove = function()
+            if IsValid(Admin.Picker) then Admin.Picker:Remove() end
+        end
+
+        local tabs = UI.Tabs(frame)
+        tabs:Dock(FILL)
+        BuildWeapons(tabs:AddTab("Weapons"), frame, working)
+        Admin.BuildSettings(tabs:AddTab("Settings"))
+    end
+
+    function Admin.Toggle()
+        if !IsValid(Admin.Frame) then return false end
+        local show = !Admin.Frame:IsVisible()
+        Admin.Frame:SetVisible(show)
+        if !show and IsValid(Admin.Picker) then Admin.Picker:Remove() end
+        return true
     end
 
     net.Receive("JDM_AdminOpenEditor", function()
@@ -393,10 +489,21 @@ if CLIENT then
         if istable(weaponList) then Admin.OpenEditor(weaponList) end
     end)
 
-    function Admin.RequestEditor()
+    -- Show the hidden menu (edits kept), or ask the server for the config
+    function Admin.Open()
+        if IsValid(Admin.Frame) then
+            Admin.Frame:SetVisible(true)
+            return
+        end
         net.Start("JDM_AdminRequestEditor")
         net.SendToServer()
     end
+    Admin.RequestEditor = Admin.Open
 
-    concommand.Add("jdm_admin", Admin.RequestEditor)
+    concommand.Add("jdm_admin", function() Admin.Open() end)
+
+    -- F3 (gm_showspare1): hide / show an existing menu here; otherwise the server sends the config
+    hook.Add("PlayerBindPress", "JDM_AdminKey", function(ply, bind, pressed)
+        if pressed and bind == "gm_showspare1" and Admin.Toggle() then return true end
+    end)
 end

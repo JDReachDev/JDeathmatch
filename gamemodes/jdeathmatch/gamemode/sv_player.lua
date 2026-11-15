@@ -56,7 +56,8 @@ if SERVER then
         ply:ChatPrint("Welcome to JDeathmatch")
         ply:ChatPrint("Press Q to access the weapon menu")
         ply:ChatPrint("Get " .. GetConVar("jdm_maxkills"):GetInt() .. " kills to win the match.")
-        ply:ChatPrint("Get " .. GetConVar("jdm_moabkills"):GetInt() .. " kills to become an Annihilator.")
+        local inARow = GetConVar("jdm_moabstreak"):GetBool() and " in a row without dying" or ""
+        ply:ChatPrint("Get " .. GetConVar("jdm_moabkills"):GetInt() .. " kills" .. inARow .. " to become an Annihilator.")
     end
     
     -- Give weapons to player when they spawn

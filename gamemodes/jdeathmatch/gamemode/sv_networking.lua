@@ -16,7 +16,8 @@ if SERVER then
     util.AddNetworkString("JDM_SendMoabStatus")
     
     -- Network strings for map voting
-    util.AddNetworkString("JDM_SendMapList")
+    util.AddNetworkString("JDM_MapVoteStart")
+    util.AddNetworkString("JDM_MapVoteUpdate")
     util.AddNetworkString("JDM_CastVote")
 
     -- Network strings for the admin weapon config editor

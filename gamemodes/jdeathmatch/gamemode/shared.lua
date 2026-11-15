@@ -6,6 +6,7 @@ GM.Website = "https://github.com/JDReachDev/JDeathmatch"
 -- Include shared configuration
 include("sh_config.lua")
 include("sh_convars.lua")
+include("sh_addons.lua")
 
 -- Unique key for per-player tables.
 -- SteamID() is "BOT" for every bot, so bots would share the same data.

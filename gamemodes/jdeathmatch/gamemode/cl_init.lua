@@ -1,7 +1,8 @@
 -- Include shared files
 include("shared.lua")
 
--- Include client-side modules
+-- Include client-side modules (the UI kit first, every menu uses it)
+include("cl_ui.lua")
 include("cl_weapons.lua")
 include("cl_mapvote.lua")
 include("cl_sounds.lua")

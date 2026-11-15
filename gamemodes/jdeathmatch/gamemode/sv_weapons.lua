@@ -296,6 +296,11 @@ if SERVER then
         ply.JDM_SlotsRequested = true
 
         JDM.Weapons.SendSlots(ply, JDM.Player.FirstSpawn[JDM.PlayerKey(ply)] == true)
+
+        -- Joined during a map vote: show it
+        if JDM.MapVote and JDM.MapVote.Active then
+            JDM.MapVote.SendState(ply, JDM.Round and JDM.Round.IsEnding)
+        end
     end)
     
     -- Command to reload weapons

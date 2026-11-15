@@ -57,6 +57,7 @@ You can set them in three ways:
 | `jdm_gravity` | `100` | Player gravity in percent. Lower values = higher jumps. |
 | `jdm_maxkills` | `30` | Kills needed to win the match. |
 | `jdm_moabkills` | `25` | Kills needed to get the MOAB reward (once per player per map). |
+| `jdm_moabstreak` | `0` | `0` = MOAB kills count over the whole match (cumulative), `1` = they must be in a row without dying. |
 | `jdm_moabtimer` | `30` | How many seconds the MOAB weapon is kept before it is removed. |
 | `jdm_flashlight` | `1` | `1` = players can use the flashlight, `0` = disabled. |
 | `jdm_farspawn` | `0` | `1` = spawn players at the spawn point farthest from the nearest enemy. |
@@ -156,19 +157,30 @@ as `data/jdmw_backup.txt`) and sends it to every player.
 
 The **Settings** tab of the same menu changes every `jdm_` ConVar live (health, speeds, gravity, kills,
 MOAB, flashlight, far spawn, slow motion, victory music with a preview button). Values are checked on the
-server and saved like any archived ConVar.
+server and saved like any archived ConVar. From there you can also start a map vote while people play.
+
+`F3` hides the menu and shows it again with your unsaved edits; the `X` closes it and discards them.
+
+All menus (loadout, admin, map vote) leave the keyboard to the game: you can keep moving while they are
+open, the keyboard is only taken while you type in a text field.
 
 ## Gameplay
 
 - On first join the player is a spectator until they save a loadout.
-- Press `Q` to open/close the loadout menu. Changes apply on the next spawn.
+- Press `Q` to open/close the loadout menu, also while playing. Click a weapon per slot (click it again to
+  remove it); the last loadout is remembered between sessions. Changes apply on the next spawn.
 - Hold `Tab` for the scoreboard (kills, deaths, K/D, MOAB status, progress to win).
 - Mouse wheel and number keys pick weapons by loadout group: `1` primary, `2` secondary, `3`/`4` specials, `5` MOAB and extras.
 - The HUD shows health, armor, ammo (clip / reserve and alt-fire) and the kills needed to win, with the MOAB mark.
 - The kill feed (top right) shows `Killer [weapon] Victim` with the weapon names from the config, plus headshots.
-- At `jdm_moabkills` kills the player becomes the **Annihilator** and gets a random MOAB weapon for `jdm_moabtimer` seconds.
-- At `jdm_maxkills` kills the match ends: slow motion, everyone spectates the winner, then a map vote opens.
-- The map vote lists every installed map starting with `dm_` or `ttt_`. If nobody votes, a random one is chosen.
+- At `jdm_moabkills` kills (in a row without dying, with `jdm_moabstreak 1`) the player becomes the
+  **Annihilator** and gets a random MOAB weapon for `jdm_moabtimer` seconds. In streak mode the HUD and the
+  scoreboard show the current streak.
+- At `jdm_maxkills` kills the match ends: slow motion, everyone spectates the winner, then a 15 second map vote opens.
+- The map vote lists every installed map starting with `dm_` or `ttt_`, with live vote counts; you can change
+  your vote until the end. Ties are broken at random, and if nobody votes a random map is chosen.
+- An admin can start a vote mid-match (`jdm_mapvote`): the panel stays on screen, `F4` takes the cursor to
+  vote and gives it back to the game.
 
 ## Commands
 
@@ -176,6 +188,7 @@ server and saved like any archived ConVar.
 |---|---|---|
 | `jdm_reloadWeaponsConfig` | admin / server console | Reload `data/jdmw.txt` and push it to clients. |
 | `jdm_admin` (or `F3`) | admin | Open the admin menu (weapons editor and settings). |
+| `jdm_mapvote [seconds]` | admin / server console | Start a map vote while playing (default 30 s, 10–300). |
 
 ## Troubleshooting
 

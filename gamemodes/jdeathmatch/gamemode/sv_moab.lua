@@ -58,14 +58,22 @@ if SERVER then
         end)
     end
     
-    -- Check if a player has reached MOAB kills
+    -- Check if a player has reached MOAB kills:
+    -- jdm_moabstreak 0 = kills in the match (cumulative), 1 = kills in a row without dying
     hook.Add("PlayerDeath", "JDM_CheckMOABKills", function(victim, inflictor, attacker)
+        -- Kill streak (shown on the HUD and scoreboard): dying resets it
+        if IsValid(victim) then victim:SetNWInt("JDM_Streak", 0) end
+
         if !IsValid(attacker) or !attacker:IsPlayer() or attacker == victim then return end
 
-        local kills = attacker:Frags()
+        local streak = attacker:GetNWInt("JDM_Streak", 0) + 1
+        attacker:SetNWInt("JDM_Streak", streak)
+
+        local consecutive = GetConVar("jdm_moabstreak"):GetBool()
+        local kills = consecutive and streak or attacker:Frags()
         local moabKills = GetConVar("jdm_moabkills"):GetInt()
         local steamID = JDM.PlayerKey(attacker)
-        
+
         -- Check if reached MOAB kills and hasn't received MOAB yet
         if kills == moabKills and !JDM.MOAB.Players[steamID] then
             JDM.MOAB.Players[steamID] = true

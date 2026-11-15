@@ -140,7 +140,7 @@ if CLIENT then
         local colW, gap = math.Round(170 * s), math.Round(8 * s)
         local headerH, rowH = math.Round(28 * s), math.Round(30 * s)
         local totalW = colW * GROUPS + gap * (GROUPS - 1)
-        local x0, y = math.Round(ScrW() / 2 - totalW / 2), math.Round(80 * s)
+        local x0, y = math.Round(ScrW() / 2 - totalW / 2), math.Round(100 * s)
 
         surface.SetAlphaMultiplier(alpha)
         for group, weapons in ipairs(Select.GetGroups(ply)) do

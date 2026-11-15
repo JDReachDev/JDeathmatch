@@ -65,19 +65,11 @@ if SERVER then
         -- Message for everyone
         PrintMessage(HUD_PRINTCENTER, winner:Nick() .. " has won the match!")
         
-        -- After 5 seconds, show map voting menu
+        -- After 5 seconds, a 15 second map vote, then the map changes
+        -- (a vote an admin already started keeps going)
         timer.Create("JDM_Round_MapVote", 5, 1, function()
-            if JDM.MapVote and JDM.MapVote.AvailableMaps then
-                net.Start("JDM_SendMapList")
-                net.WriteTable(JDM.MapVote.AvailableMaps)
-                net.Broadcast()
-            end
-        end)
-        
-        -- After 20 seconds, change map
-        timer.Create("JDM_Round_ChangeMap", 20, 1, function()
             if JDM.MapVote then
-                JDM.MapVote.ChangeToWinningMap()
+                JDM.MapVote.Start(15, true)
             end
         end)
     end

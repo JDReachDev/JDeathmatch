@@ -169,8 +169,18 @@ if CLIENT then
         local barY, barH = y + h - math.Round(10 * s), math.Round(4 * s)
         DrawBar(x + math.Round(12 * s), barY, w - math.Round(24 * s), barH, kills / maxKills, HUD.Colors.Accent)
 
-        -- MOAB marker on the bar
-        if moabKills > 0 and moabKills < maxKills then
+        local consecutive = GetConVar("jdm_moabstreak"):GetBool()
+        local scoreboard = JDM.Client.Scoreboard
+        local hasMOAB = scoreboard and scoreboard.MOABPlayers and scoreboard.MOABPlayers[JDM.PlayerKey(ply)]
+
+        -- Kills in a row mode: streak toward the MOAB under the box
+        if consecutive and moabKills > 0 and !hasMOAB then
+            local streak = ply:GetNWInt("JDM_Streak", 0)
+            draw.SimpleText("STREAK " .. streak .. " / " .. moabKills .. "  MOAB", "JDM_HUD_Small", x + w / 2, y + h + math.Round(4 * s), streak > 0 and HUD.Colors.Gold or HUD.Colors.TextDim, TEXT_ALIGN_CENTER)
+        end
+
+        -- MOAB marker on the bar (cumulative mode)
+        if !consecutive and moabKills > 0 and moabKills < maxKills then
             local mx = x + math.Round(12 * s) + (w - math.Round(24 * s)) * moabKills / maxKills
             surface.SetDrawColor(HUD.Colors.Gold)
             surface.DrawRect(math.Round(mx) - 1, barY - math.Round(3 * s), 2, barH + math.Round(6 * s))

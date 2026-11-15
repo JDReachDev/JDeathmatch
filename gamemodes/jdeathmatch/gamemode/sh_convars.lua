@@ -17,7 +17,7 @@ JDM.ConVars = {
     { name = "jdm_moabtimer",      default = "30",  help = "MOAB duration (seconds)",               type = "number", min = 1, max = 600 },
     { name = "jdm_flashlight",      default = "1",   help = "Allow the flashlight",                  type = "bool" },
     { name = "jdm_farspawn",        default = "0",   help = "Spawn far from enemies",                type = "bool" },
-    { name = "jdm_respawntime",     default = "10",  help = "Seconds before a dead player respawns automatically", type = "number", min = 1, max = 300 },
+    { name = "jdm_respawntime",     default = "20",  help = "Seconds before a dead player respawns automatically", type = "number", min = 1, max = 300 },
     { name = "jdm_slowmo",          default = "30",  help = "Slow motion speed on the winning kill (%)", type = "number", min = 5, max = 100 },
     { name = "jdm_winmusic",        default = "music/hl2_song20_submix0.mp3", help = "Victory music (sound path)", type = "music" },
 }

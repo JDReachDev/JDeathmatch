@@ -61,7 +61,7 @@ You can set them in three ways:
 | `jdm_moabtimer` | `30` | How many seconds the MOAB weapon is kept before it is removed. |
 | `jdm_flashlight` | `1` | `1` = players can use the flashlight, `0` = disabled. |
 | `jdm_farspawn` | `0` | `1` = spawn players at the spawn point farthest from the nearest enemy. |
-| `jdm_respawntime` | `10` | Seconds before a dead player is respawned automatically (clicking respawns earlier). |
+| `jdm_respawntime` | `20` | Seconds before a dead player is respawned automatically (clicking respawns earlier). |
 | `jdm_slowmo` | `30` | Game speed (%) during the slow motion after the winning kill. |
 | `jdm_winmusic` | `music/hl2_song20_submix0.mp3` | Victory music (any sound path, `jdm_winsound.wav` = the classic one). |
 
@@ -79,7 +79,7 @@ jdm_moabkills 25
 jdm_moabtimer 30
 jdm_flashlight 1
 jdm_farspawn 0
-jdm_respawntime 10
+jdm_respawntime 20
 jdm_slowmo 30
 jdm_winmusic music/hl2_song20_submix0.mp3
 ```
@@ -169,7 +169,7 @@ open, the keyboard is only taken while you type in a text field.
 ## Gameplay
 
 - On first join the player is a spectator until they save a loadout.
-- After dying, click to respawn, or wait `jdm_respawntime` seconds (10 by default) for the automatic respawn.
+- After dying, click to respawn, or wait `jdm_respawntime` seconds (20 by default) for the automatic respawn.
 - Press `Q` to open/close the loadout menu, also while playing. Click a weapon per slot (click it again to
   remove it); the last loadout is remembered between sessions. Changes apply on the next spawn.
 - Hold `Tab` for the scoreboard (kills, deaths, K/D, MOAB status, progress to win).

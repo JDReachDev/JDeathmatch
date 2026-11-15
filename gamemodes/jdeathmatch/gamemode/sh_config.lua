@@ -27,6 +27,7 @@ JDM.Config.WinMusic = {
 -- Special slot for MOAB weapons
 JDM.Config.MOABSlot = 666
 
+
 -- Default weapons configuration used to bootstrap data/jdmw.txt.
 JDM.Config.DefaultWeapons = {
     {

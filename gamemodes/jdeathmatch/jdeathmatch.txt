@@ -103,5 +103,13 @@
             "type"      "Text"
             "default"   "music/hl2_song20_submix0.mp3"
         }
+		13
+        {
+            "name"      "jdm_respawntime"
+            "text"      "Respawn time (seconds)"
+            "help"      "Dead players respawn automatically after this time (clicking respawns earlier)"
+            "type"      "Numeric"
+            "default"   "10"
+        }
 	}
 }

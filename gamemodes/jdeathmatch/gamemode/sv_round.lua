@@ -82,9 +82,24 @@ if SERVER then
         JDM.Round.StartSlowMotion(winner)
     end
     
-    -- No respawning while the match is ending
+    -- No respawning while the match is ending. Otherwise the player can click to respawn as usual,
+    -- and is respawned anyway after jdm_respawntime seconds (idle players and bots too)
     hook.Add("PlayerDeathThink", "JDM_BlockRespawnOnRoundEnd", function(ply)
         if JDM.Round.IsEnding then return false end
+
+        local respawnAt = ply:GetNWFloat("JDM_RespawnAt", 0)
+        if respawnAt > 0 and CurTime() >= respawnAt then
+            ply:Spawn()
+            return true
+        end
+    end)
+
+    hook.Add("PlayerDeath", "JDM_AutoRespawnTimer", function(victim)
+        victim:SetNWFloat("JDM_RespawnAt", CurTime() + math.max(GetConVar("jdm_respawntime"):GetFloat(), 1))
+    end)
+
+    hook.Add("PlayerSpawn", "JDM_ClearAutoRespawn", function(ply)
+        ply:SetNWFloat("JDM_RespawnAt", 0)
     end)
 
     -- Check if a player has won

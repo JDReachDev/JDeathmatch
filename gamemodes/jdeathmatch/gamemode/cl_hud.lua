@@ -196,6 +196,20 @@ if CLIENT then
         local s = HUD.Scale or 1
         DrawKills(ply, s)
 
+        -- Dead: countdown to the automatic respawn (sv_round.lua)
+        local respawnAt = ply:GetNWFloat("JDM_RespawnAt", 0)
+        if !ply:Alive() and respawnAt > 0 then
+            local left = math.max(math.ceil(respawnAt - CurTime()), 0)
+            local text = "RESPAWN IN " .. left .. "  ·  CLICK TO RESPAWN NOW"
+            surface.SetFont("JDM_HUD_Mid")
+            local tw, th = surface.GetTextSize(text)
+            local w, h = tw + math.Round(40 * s), th + math.Round(20 * s)
+            local x, y = math.Round(ScrW() / 2 - w / 2), math.Round(ScrH() * 0.72)
+            draw.RoundedBox(6, x, y, w, h, HUD.Colors.Background)
+            draw.RoundedBoxEx(6, x, y, math.Round(4 * s), h, HUD.Colors.Accent, true, false, true, false)
+            draw.SimpleText(text, "JDM_HUD_Mid", x + w / 2, y + h / 2, HUD.Colors.Text, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        end
+
         if !ply:Alive() or ply:GetObserverMode() != OBS_MODE_NONE then return end
         DrawHealthArmor(ply, s)
         DrawAmmo(ply, s)

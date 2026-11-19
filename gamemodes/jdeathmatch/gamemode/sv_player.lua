@@ -35,19 +35,13 @@ if SERVER then
             ply:AllowFlashlight(false)
         end
 
-        -- Player model first: weapons bonemerge onto the model they are given on,
-        -- so giving them before SetModel leaves them upside down/sideways in third person
+        -- Player model (before SetupHands, so the hands match the model)
         local preferredModel = player_manager.TranslatePlayerModel(ply:GetInfo("cl_playermodel"))
         if preferredModel then
             ply:SetModel(preferredModel)
         end
 
         ply:SetupHands()
-
-        -- Weapons after the model (no selection = default weapon).
-        -- Not in a PlayerSpawn hook: hooks run before GM:PlayerSpawn, i.e. before SetModel
-        local selection = JDM.Weapons.PlayerSelections[JDM.PlayerKey(ply)]
-        JDM.Weapons.GiveToPlayer(ply, selection or {})
     end
     
     -- First spawn handling
@@ -65,6 +59,20 @@ if SERVER then
         local inARow = GetConVar("jdm_moabstreak"):GetBool() and " in a row without dying" or ""
         ply:ChatPrint("Get " .. GetConVar("jdm_moabkills"):GetInt() .. " kills" .. inARow .. " to become an Annihilator.")
     end
+    
+    -- Give weapons to player when they spawn
+    hook.Add("PlayerSpawn", "JDM_GivePlayerWeapons", function(ply)
+        if !IsValid(ply) then return end
+        
+        -- Skip if first spawn
+        if JDM.Player.FirstSpawn[JDM.PlayerKey(ply)] then
+            return
+        end
+        
+        -- Get player selection (no selection = default weapon)
+        local selection = JDM.Weapons.PlayerSelections[JDM.PlayerKey(ply)]
+        JDM.Weapons.GiveToPlayer(ply, selection or {})
+    end)
     
     -- Remove annoying tinnitus sound
     hook.Add("OnDamagedByExplosion", "JDM_DisableTinnitus", function()
